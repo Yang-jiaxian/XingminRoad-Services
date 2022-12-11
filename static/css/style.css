@@ -1,0 +1,162 @@
+@import url("https://fonts.googleapis.com/css?family=Material+Icons");
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,400i,500,700");
+
+html {
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+    position: relative;
+}
+
+body {
+    margin: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    font-family: Roboto;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table thead th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+table th, table td {
+    font-size: 12px;
+    text-align: left;
+    border: 1px solid #ccc;
+    padding: 8px;
+}
+
+table th:not(:first-of-type) {
+    border-left: 0;
+}
+
+table td {
+    border-top: 0;
+}
+
+table td:not(:first-of-type) {
+    border-left: 0;
+}
+
+table th {
+    background: #c61515;
+    color: white;
+    box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+table tr:nth-of-type(even) td {
+    background: whitesmoke;
+}
+
+table tr:hover td {
+    background: #b3b3b3;
+}
+
+table th {
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 60px;
+    transition: background-color 150ms;
+    padding: 16px 8px 16px 22px;
+}
+
+table th:before {
+    content: 'arrow_right';
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Material Icons', sans-serif;
+    transition: color 300ms, -webkit-transform 300ms;
+    transition: transform 300ms, color 300ms;
+    transition: transform 300ms, color 300ms, -webkit-transform 300ms;
+    position: absolute;
+    font-size: 18px;
+    left: 4px;
+    top: calc(50% - 9px);
+}
+
+table .ascending:before {
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+    color: white;
+}
+
+table .descending:before {
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+    color: white;
+}
+
+table .ascending {
+    background-color: #f31919;
+}
+
+table .descending {
+    background-color: #981010;
+}
+
+@supports (display: contents) {
+    table {
+        display: grid;
+        grid-template-columns: repeat(5, auto);
+    }
+
+    table thead, table tbody, table tr {
+        display: contents;
+    }
+
+    table th {
+        border-color: #af1313;
+    }
+}
+
+article {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+h1 {
+    padding: 12px 12px 0;
+    margin-bottom: 48px;
+    color: #c61515;
+}
+
+p {
+    padding: 0 12px;
+}
+
+a:not(:hover) {
+    text-decoration: none;
+}
+
+a {
+    color: #c61515;
+    font-weight: 500;
+}
+
+small {
+    display: block;
+    color: #666;
+}
+
+ul {
+    margin: 0 0 24px;
+    padding: 0 28px;
+    list-style-type: square;
+}
