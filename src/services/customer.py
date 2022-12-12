@@ -3,27 +3,16 @@
 # @Author  : Yang
 # @Email  : yangjiaxian@ibbd.net
 # @Time    : 2022/11/14
+import json
 import datetime
 
+from src.utils import to_chinese4
 from src.common.OptionMysql import OptionMysql
 from src.error import InternalException, status
 
 
 class CustomerServices(object):
 
-    @staticmethod
-    def update_contact_status(customerId):
-        """更新客户的联系状态
-
-        """
-        mysql = OptionMysql()
-        sql_statement = """SELECT COUNT(`id`) AS `count` FROM `contact` WHERE `customer_id`=%s AND `is_delete`=0"""
-        result = mysql.fetch_one(sql_statement, [customerId])
-
-        sql_statement = """UPDATE `customer` SET `contact_status`=%s WHERE `is_delete`=0 AND `id`=%s"""
-        affect_rows = mysql.update_one(sql_statement, [result["count"], customerId])
-        if affect_rows != 1:
-            raise InternalException(status.HTTP_622_MYSQL_ERROR, message="修改客户联系状态失败")
 
     @staticmethod
     def create(**kwargs):
@@ -66,6 +55,17 @@ class CustomerServices(object):
         mysql = OptionMysql()
         sql_statement = """SELECT `id` FROM `customer` WHERE `is_delete`=0 AND `id`=%s"""
         result = mysql.fetch_one(sql_statement, [customerId])
+
+        result["permissions"] = json.loads(result["permissions"])
+        # result["fund_demand"] = json.loads(result["fund_demand"])
+        # result["technical_demand"] = json.loads(result["technical_demand"])
+        # result["bond_source_demand"] = json.loads(result["bond_source_demand"])
+        # result["investment_research_demand"] = json.loads(result["investment_research_demand"])
+        # result["private_placement_strategy"] = json.loads(result["private_placement_strategy"])
+        if result["contact_status"] == 0:
+            result["contact_status"] = "从未联系"
+        else:
+            result["contact_status"] = "第" + to_chinese4(result["contact_status"]) + "次"
         return result
 
     @staticmethod
@@ -73,3 +73,19 @@ class CustomerServices(object):
         mysql = OptionMysql()
         # TODO 暂时是*
         sql_statement = """SELECT * FROM `customer` WHERE `is_delete`=0"""
+
+
+    @staticmethod
+    def update_contact_status(customerId):
+        """更新客户的联系状态
+
+        幂等，去统计该客户现拥有的联系记录条数
+        """
+        mysql = OptionMysql()
+        sql_statement = """SELECT COUNT(`id`) AS `count` FROM `contact` WHERE `customer_id`=%s AND `is_delete`=0"""
+        result = mysql.fetch_one(sql_statement, [customerId])
+
+        sql_statement = """UPDATE `customer` SET `contact_status`=%s WHERE `is_delete`=0 AND `id`=%s"""
+        affect_rows = mysql.update_one(sql_statement, [result["count"], customerId])
+        if affect_rows != 1:
+            raise InternalException(status.HTTP_622_MYSQL_ERROR, message="修改客户联系状态失败")

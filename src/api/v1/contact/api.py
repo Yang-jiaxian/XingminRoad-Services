@@ -25,10 +25,8 @@ async def create_contact_api(
     if not CustomerServices().fetch_one(params.customer_id):
         raise InternalException(status.HTTP_601_ID_NOT_EXIST, message="客户ID不存在")
 
-    # 处理枚举类型
-    params.remind_freq = params.remind_freq.value
-
     # 新增联系记录
+    params.operator_id = operator_id
     contact_id = ContactServices().create(**params.dict())
 
     # 修改客户的联系状态
