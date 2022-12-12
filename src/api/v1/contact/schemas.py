@@ -4,21 +4,23 @@
 # @Email  : yangjiaxian@ibbd.net
 # @Time    : 2022/11/15
 from pydantic import BaseModel, Field
-from src.const import RemindFreq, DATE_REGEX
+from src.const import DATE_REGEX
 
 
 class CreateContactParams(BaseModel):
+    """新增联系记录参数"""
     customer_id: int = Field(..., title="客户ID")
     contact_date: str = Field(..., regex=DATE_REGEX, title="联系时间（拜访时间）")
-    contact_detail: str = Field(..., title="联系详情（拜访内容）")
+    contact_detail: str = Field(..., title="联系情况说明（拜访情况说明）")
     demand: str = Field(None, title="需求")
     next_contact_date: str = Field(..., regex=DATE_REGEX, title="预约下次拜访时间")
-    remind_freq: RemindFreq = Field(..., title="提醒频率")
+    remind_duration: int = Field(..., gt=0, title="提醒时长", description="工作日")
 
 
 class UpdateContactParams(BaseModel):
+    """更新联系记录参数"""
     contact_date: str = Field(None, regex=DATE_REGEX, title="联系时间（拜访时间）")
-    contact_detail: str = Field(None, title="联系详情（拜访内容）")
+    contact_detail: str = Field(None, title="联系情况说明（拜访情况说明）")
     demand: str = Field(None, title="需求")
     next_contact_date: str = Field(None, regex=DATE_REGEX, title="预约下次拜访时间")
-    remind_freq: RemindFreq = Field(None, title="提醒频率")
+    remind_duration: int = Field(..., gt=0, title="提醒时长", description="工作日")

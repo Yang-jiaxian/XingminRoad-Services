@@ -7,8 +7,6 @@ import asyncio
 import os
 import random
 from typing import List
-# import contextvars
-# from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -63,12 +61,6 @@ async def startup_event():
         os.mkdir(settings.LOGS_DIR)
     _, operators = OperatorServices().fetch_data(None, None)  # 获取到所有的操作人姓名
     operator_list.extend([operator["id"] for operator in operators])
-    # 定时任务
-    # scheduler = AsyncIOScheduler(timezone="Asia/Shanghai")
-    # scheduler.add_job(send_massage, 'interval', minutes=1)
-    # scheduler.add_job(send_massage, "cron", month="*", day=2, hour='*', minute="*", second="*")
-    # scheduler.start()
-    pass
 
 
 @app.on_event('startup')

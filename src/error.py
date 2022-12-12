@@ -28,6 +28,7 @@ class status:
     HTTP_400_BAD_REQUEST = fastapiStatus.HTTP_400_BAD_REQUEST
     HTTP_401_UNAUTHORIZED = fastapiStatus.HTTP_401_UNAUTHORIZED
     HTTP_404_NOT_FOUND = fastapiStatus.HTTP_404_NOT_FOUND
+    HTTP_422_UNPROCESSABLE_ENTITY = fastapiStatus.HTTP_422_UNPROCESSABLE_ENTITY
 
     # 5XX：来自服务器端错误的响应
     HTTP_500_INTERNAL_SERVER_ERROR = fastapiStatus.HTTP_500_INTERNAL_SERVER_ERROR
@@ -43,6 +44,7 @@ messages = {
     status.HTTP_400_BAD_REQUEST: '客户端请求的语法错误，服务器无法理解',
     status.HTTP_404_NOT_FOUND: '请求的资源无法找到',
     status.HTTP_401_UNAUTHORIZED: '权限校验不通过',
+    status.HTTP_422_UNPROCESSABLE_ENTITY: '请求参数不通过',
     # 5XX
     status.HTTP_500_INTERNAL_SERVER_ERROR: '服务器内部错误，无法完成请求',
     status.HTTP_601_ID_NOT_EXIST: "请求ID不存在",

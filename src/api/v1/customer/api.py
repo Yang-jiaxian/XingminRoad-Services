@@ -23,14 +23,33 @@ async def create_customer_api(
         params: CreateCustomerParams,
         operator_id: int = Depends(check_operator)
 ):
-    if params.follower:
-        assert params.assignmenter == params.follower
+
     if params.permissions:
         params.permissions = json.dumps(params.permissions.dict())
+
+    # 个人客户
+    if params.customer_type.value == CustomerType.individual_customer.value:
+        if params.gender is None:
+            raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, message="缺少性别参数")
+        if params.assignmenter:
+            if not params.developer:
+                raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, message="缺少开发关系参数")
+            if params.assignmenter != params.developer:
+                raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, message="服务包分配应该和开发关系一致")
+        params.scale_of_management = None
+        params.private_placement_strategy = None
+        params.fund_demand = None
+        params.technical_demand = None
+        params.bond_source_demand = None
+        params.investment_research_demand = None
+
+    # 机构客户
+    if params.customer_type.value == CustomerType.institutional_customer.value:
+        if not params.contact_person:
+            raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, message="缺少联系人参数")
+
     params.customer_type = params.customer_type.value
-
-    # TODO 校验个人和客户的数据
-
+    params.gender = params.gender.value
     customer_id = CustomerServices().create(**params.dict())
 
     LogServices().create(operator_id, f"新增了ID为{customer_id}的客户", params.dict())
@@ -53,13 +72,13 @@ async def update_customer_api(
     if params.customer_type:
         params.customer_type = params.customer_type.value
 
-    kwargs = {k: v for k, v in params.dict().items() if v is not None}
-    if not kwargs:
-        return output_json(data={"customer_id": customerId}, message="修改客户数据成功")
+    # kwargs = {k: v for k, v in params.dict().items() if v is not None}
+    # if not kwargs:
+    #     return output_json(data={"customer_id": customerId}, message="修改客户数据成功")
 
-    CustomerServices().update(customerId, **kwargs)
+    CustomerServices().update(customerId, **params.dict())
 
-    LogServices().create(operator_id, f"修改了ID为{customerId}的客户", kwargs)
+    LogServices().create(operator_id, f"修改了ID为{customerId}的客户", params.dict())
     return output_json(data={"customer_id": customerId}, message="修改客户数据成功")
 
 

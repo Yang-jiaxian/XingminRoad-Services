@@ -4,7 +4,7 @@
 # @Email  : yangjiaxian@ibbd.net
 # @Time    : 2022/11/15
 from pydantic import BaseModel, Field
-from src.const import RemindFreq, DATE_REGEX
+from src.const import DATE_REGEX
 
 
 class CreateFundParams(BaseModel):
