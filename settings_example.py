@@ -68,7 +68,7 @@ class ProdSettings(BaseSettings):
     # 应用版本
     APP_VERSION = "1.0.1"
     # 是否开启DEBUG
-    DEBUG: bool = True
+    DEBUG: bool = False
     # 项目文档
     TITLE: str = title
     # 描述
@@ -88,9 +88,9 @@ class ProdSettings(BaseSettings):
     # 项目根路径
     BASE_PATH: str = os.path.dirname(os.path.dirname(os.path.dirname((os.path.abspath(__file__)))))
     # 日志文件夹
-    LOGS_DIR: str = r"F:\code\XingminRoad-Service\logs"
+    LOGS_DIR: str = r""  # TODO
     # MYSQL数据库配置
-    MYSQL_CONFIG: dict = {
+    MYSQL_CONFIG: dict = {  # TODO
         'HOST': "127.0.0.1",
         'PORT': 3306,
         'USERNAME': "root",
@@ -103,4 +103,4 @@ class ProdSettings(BaseSettings):
     API_PREFIX: str = "/api/v1"
 
 
-settings = DeveSettings()
+settings = ProdSettings()
