@@ -35,7 +35,9 @@ CREATE TABLE `contact`  (
   `created_at` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `updated_at` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
+
 ) ENGINE = InnoDB AUTO_INCREMENT = 0 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '联系记录表' ROW_FORMAT = Dynamic;
+
 
 -- ----------------------------
 -- Table structure for cooperative_brokerage
@@ -50,6 +52,7 @@ CREATE TABLE `cooperative_brokerage`  (
   `updated_at` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 0 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '合作券商表' ROW_FORMAT = Dynamic;
+
 
 -- ----------------------------
 -- Table structure for customer
@@ -116,7 +119,9 @@ CREATE TABLE `fund`  (
   `created_at` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `updated_at` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
+
 ) ENGINE = InnoDB AUTO_INCREMENT = 0 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin COMMENT = '基金理财、私募表' ROW_FORMAT = Dynamic;
+
 
 -- ----------------------------
 -- Table structure for log
