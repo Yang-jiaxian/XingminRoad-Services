@@ -26,7 +26,15 @@ class ScaleOfManagement(str, Enum):
     more_than_one_hundred = ">100E"
 
 
+class RemindType(str, Enum):
+    interest_rate_expiry_customers = "interest_rate_expiry_customers"
+    fund_expiry_customers = "fund_expiry_customers"
+    need_to_contact_customers = "need_to_contact_customers"
+
+
 operator_list = []
 
 DATE_REGEX = "^([1-2][0-9][0-9][0-9]-[0-1]{0,1}[0-9]-[0-3]{0,1}[0-9])$"
 DATETIME_REGEX = "^([1-2][0-9][0-9][0-9]-[0-1]{0,1}[0-9]-[0-3]{0,1}[0-9])\s(20|21|22|23|[0-1]\d):[0-5]\d:[0-5]\d$"
+
+print(CustomerType.individual_customer.name, type(CustomerType.individual_customer.name))

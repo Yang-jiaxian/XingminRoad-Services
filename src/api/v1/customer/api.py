@@ -9,7 +9,7 @@ import json
 from fastapi import APIRouter, Path, Query, Depends
 
 from src.api.v1.customer.schemas import CreateCustomerParams, UpdateCustomerParams
-from src.const import CustomerType
+from src.const import CustomerType, RemindType
 from src.error import InternalException, status
 from src.services.customer import CustomerServices
 from src.services.log import LogServices
@@ -19,11 +19,10 @@ customer_app = APIRouter(tags=["客户"])
 
 
 @customer_app.post("/customers", summary="新增客户")
-async def create_customer_api(
+async def create_customers_api(
         params: CreateCustomerParams,
         operator_id: int = Depends(check_operator)
 ):
-
     if params.permissions:
         params.permissions = json.dumps(params.permissions.dict())
 
@@ -97,11 +96,30 @@ async def delete_customer_api(
     return output_json(data={"customer_id": customerId}, message="删除客户成功")
 
 
+@customer_app.get(path="/remind/customers/count", summary="获取提醒的客户数量")
+async def get_remind_customers_count_api(
+        operator_id: int = Depends(check_operator)
+):
+    # TODO
+    data = {
+        CustomerType.individual_customer.name: {
+            "interest_rate_expiry_customers_count": 15,
+            "fund_expiry_customers_count": 16,
+            "need_to_contact_customers_count": 18
+        },
+        CustomerType.institutional_customer.name: {
+            "interest_rate_expiry_customers_count": 17,
+            "fund_expiry_customers_count": 12,
+            "need_to_contact_customers_count": 19
+        }}
+    return output_json(data=data, message="假数据")
+
+
 @customer_app.get(path="/customers", summary="查询客户")
 async def fetch_customer_api(
         customer_id: int = Query(None, title="客户ID"),
         capital_account: str = Query(None, title="资金账号"),
-        customer_type: CustomerType = Query(None, title="客户类型"),
+        customer_type: CustomerType = Query(CustomerType.individual_customer.value, title="客户类型", description="默认个人客户"),
         name: str = Query(None, title="名称"),
         contact_person: str = Query(None, title="联系人"),
         phone: str = Query(None, title="联系方式"),
@@ -115,7 +133,15 @@ async def fetch_customer_api(
         fund_expire_remind: bool = Query(None, title="基金到期提醒"),
         interest_rate_expiry_remind: bool = Query(None, title="融资融券利率失效提醒"),
 
+        remind_type: RemindType = Query(None, title="提醒的类型", description="不填就不过滤"),
         pageNo: int = Query(None, title="页码", description="非必填，不传获取所有"),
         pageSize: int = Query(None, title="页大小", description="非必填，不传获取所有")
 ):
+    """
+    提醒类型（三种）：\n
+    融资融券失效客户：interest_rate_expiry_customers\n
+    基金到期客户   ：fund_expiry_customers\n
+    需要联系的客户 ： need_to_contact_customers\n
+    说明：
+    """
     pass
