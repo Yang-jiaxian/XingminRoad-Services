@@ -5,7 +5,7 @@
 # @Time    : 2022/11/15
 from src.common.OptionMysql import OptionMysql
 from src.error import InternalException, status
-from src.utils import format_data
+from src.utils import format_data, get_before_workday
 
 
 class ContactServices(object):
@@ -15,6 +15,7 @@ class ContactServices(object):
         """新增联系记录
 
         """
+        kwargs["remind_date"] = get_before_workday(kwargs["next_contact_date"], kwargs["remind_duration"])
         mysql = OptionMysql()
         affect_rows, contact_id = mysql.insert_dict("contact", kwargs, True)
         if affect_rows != 1:

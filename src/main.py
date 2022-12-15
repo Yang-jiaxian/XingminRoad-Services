@@ -13,7 +13,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_utils.tasks import repeat_every
-
+from fastapi.openapi.docs import get_swagger_ui_html, get_swagger_ui_oauth2_redirect_html
 from settings import settings
 from src.common.logger import logger
 from src.error import get_status, init_exception
@@ -23,11 +23,18 @@ from src.services.operator import OperatorServices
 from src.utils import delete_dir
 from src.const import operator_list
 
+with open(settings.README_MD_PATH, encoding='utf8') as f:
+    description = f.read()
+
+_idx = description.index('\n')
+title = description[:_idx].strip('# ')
+description = description[_idx + 1:].strip()
+
 app = FastAPI(
-    title=settings.TITLE,
-    description=settings.DESCRIPTION,
+    title=title,
+    description=description,
     version=settings.APP_VERSION,
-    docs_url=settings.DOCS_URL,
+    docs_url=None,
     openapi_url=settings.OPENAPI_URL
 )
 
@@ -46,11 +53,28 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="static")
 
 
+# 重设swagger地址设为docs
+@app.get(path=settings.DOCS_URL, include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - Swagger UI",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_js_url="/static/swagger/swagger-ui-bundle.js",
+        swagger_css_url="/static/swagger/swagger-ui.css",
+    )
+
+
+@app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)
+async def swagger_ui_redirect():
+    return get_swagger_ui_oauth2_redirect_html()
+
+
 @app.middleware("http")
 async def gunicorn_logger(request: Request, call_next):
     response: Response = await call_next(request)
     logger.info(f'{request.client.host}:{request.client.port} - '
-                f'"{request.method.upper()} {request.url.path}"  {response.status_code} ')
+                f'"{request.method.upper()} {request.url}"  {response.status_code} ')
     return response
 
 

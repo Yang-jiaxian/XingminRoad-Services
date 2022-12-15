@@ -9,6 +9,7 @@ from fastapi import Header, Request
 from fastapi.responses import JSONResponse
 from datetime import datetime, date
 from src.common.logger import logger
+from src.common.OptionMysql import OptionMysql
 from src.const import operator_list
 from src.error import InternalException, status
 
@@ -16,6 +17,16 @@ _MAPPING = (u'零', u'一', u'二', u'三', u'四', u'五', u'六', u'七', u'�
             u'十一', u'十二', u'十三', u'十四', u'十五', u'十六', u'十七', u'十八', u'十九')
 _P0 = (u'', u'十', u'百', u'千',)
 _S4 = 10 ** 4
+
+
+def get_before_workday(date: str, n: int):
+    """获取date日期的第前n个工作日
+
+    """
+    mysql = OptionMysql()
+    sql = """SELECT `date` FROM `workday` WHERE date < %s ORDER BY `date` DESC LIMIT %s"""
+    data = mysql.fetch_data(sql, [date, n])
+    return str(data[n - 1]["date"])
 
 
 def to_chinese4(num):
@@ -90,5 +101,14 @@ def check_operator(operator_id: int = Header(...), requests: Request = None):
 
 
 if __name__ == '__main__':
-    path = "C:\\Users\\yangj\\Desktop\\github\\Search-Service\\test"
-    delete_dir(path, 1)
+    # path = "C:\\Users\\yangj\\Desktop\\github\\Search-Service\\test"
+    # delete_dir(path, 1)
+    today = str(datetime(2023, 1, 13))
+    # print(today)
+    DATA = get_before_workday(today, 20)
+    print(DATA)
+    # mysql = OptionMysql()
+    # sql = """SELECT `date` FROM `workday` WHERE date > %s ORDER BY `date` ASC LIMIT %s"""
+    # data = mysql.fetch_data(sql, [today, 20])
+    # # print(data)
+    # print(str(data[20 - 1]))

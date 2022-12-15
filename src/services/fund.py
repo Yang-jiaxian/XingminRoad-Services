@@ -3,9 +3,10 @@
 # @Author  : Yang
 # @Email  : yangjiaxian@ibbd.net
 # @Time    : 2022/11/16
+from src.const import FUND_REMIND_DURATION
 from src.common.OptionMysql import OptionMysql
 from src.error import InternalException, status
-from src.utils import format_data
+from src.utils import format_data, get_before_workday
 
 
 class FundServices(object):
@@ -15,6 +16,7 @@ class FundServices(object):
         """新增客户基金数据
 
         """
+        kwargs["remind_date"] = get_before_workday(kwargs["due_date"], FUND_REMIND_DURATION)
         mysql = OptionMysql()
         affect_rows, fund_id = mysql.insert_dict("fund", kwargs, True)
         if affect_rows != 1:
