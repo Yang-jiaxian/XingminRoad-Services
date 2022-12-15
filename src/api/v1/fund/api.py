@@ -55,6 +55,7 @@ async def update_fund_api(
     if not result:
         raise InternalException(status.HTTP_601_ID_NOT_EXIST, message="客户基金数据ID已删除或不存在")
 
+    # TODO
     kwargs = {k: v for k, v in params.dict().items() if v is not None}
     if not kwargs:
         return output_json(data={"fund_id": fundId}, message="修改客户基金数据成功")
@@ -67,8 +68,8 @@ async def update_fund_api(
 @fund_app.get("/funds", summary="获取客户基金数据")
 async def fetch_fund_api(
         customerId: int = Query(None, title="客户ID"),
-        pageNo: int = Query(None, title="页码", description="非必填，不传获取所有"),
-        pageSize: int = Query(None, title="页大小", description="非必填，不传获取所有")
+        pageNo: int = Query(1, title="页码"),
+        pageSize: int = Query(20, title="页大小")
 ):
     if pageNo is not None:
         assert pageNo > 0

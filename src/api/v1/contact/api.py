@@ -26,8 +26,9 @@ async def create_contact_api(
         raise InternalException(status.HTTP_601_ID_NOT_EXIST, message="客户ID不存在")
 
     # 新增联系记录
-    params.operator_id = operator_id
-    contact_id = ContactServices().create(**params.dict())
+    _dict = params.dict().copy()
+    _dict.update({"operator_id": operator_id})
+    contact_id = ContactServices().create(**_dict)
 
     # 修改客户的联系状态
     CustomerServices().update_contact_status(params.customer_id)
@@ -68,7 +69,7 @@ async def update_contact_api(
     kwargs = {k: v for k, v in params.dict().items() if v is not None}
     if not kwargs:
         return output_json(data={"contact_id": contactId}, message="修改联系记录成功")
-
+    # TODO 修改时间会有问题。
     ContactServices().update(contactId, **kwargs)
 
     LogServices().create(operator_id, f"修改了ID为{contactId}的联系记录", kwargs)
@@ -78,8 +79,8 @@ async def update_contact_api(
 @contact_app.get("/contacts", summary="获取联系记录")
 async def fetch_contact_api(
         customerId: int = Query(None, title="客户ID"),
-        pageNo: int = Query(None, title="页码", description="非必填，不传获取所有"),
-        pageSize: int = Query(None, title="页大小", description="非必填，不传获取所有")
+        pageNo: int = Query(1, title="页码"),
+        pageSize: int = Query(20, title="页大小")
 ):
     if pageNo is not None:
         assert pageNo > 0

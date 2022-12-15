@@ -73,8 +73,8 @@ async def update_cooperation_api(
 @cooperation_app.get("/cooperations", summary="获取合作券商")
 async def fetch_cooperation_api(
         customerId: int = Query(None, title="客户ID"),
-        pageNo: int = Query(None, title="页码", description="非必填，不传获取所有"),
-        pageSize: int = Query(None, title="页大小", description="非必填，不传获取所有")
+        pageNo: int = Query(1, title="页码"),
+        pageSize: int = Query(20, title="页大小")
 ):
     if pageNo is not None:
         assert pageNo > 0

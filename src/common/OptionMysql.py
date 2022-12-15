@@ -5,6 +5,7 @@
 # Created Time: 2021/12/17
 import json
 from typing import List
+from datetime import datetime,date
 
 import pymysql
 from dbutils.pooled_db import PooledDB
@@ -76,6 +77,9 @@ class OptionMysql(object):
             else:
                 cursor.execute(sql)
             result = cursor.fetchone()
+            for key, value in result.items():
+                if isinstance(value, datetime) or isinstance(value, date):
+                    result[key] = str(value)
         except Exception as e:
             print("===========" * 5 + "\n" + sql + "\n" + "===========" * 5)
             if params:
@@ -94,6 +98,10 @@ class OptionMysql(object):
             else:
                 cursor.execute(sql)
             result = cursor.fetchall()
+            for item in result:
+                for key, value in item.items():
+                    if isinstance(value, datetime) or isinstance(value, date):
+                        item[key] = str(value)
         except Exception as e:
             print("===========" * 5 + "\n" + sql + "\n" + "===========" * 5)
             if params:
@@ -142,7 +150,8 @@ class OptionMysql(object):
             conn.commit()
         except Exception as e:
             conn.rollback()
-            print(e)
+            if "Duplicate entry" in str(e):
+                raise InternalException(status.HTTP_622_MYSQL_ERROR, detail=str(e))
             raise InternalException(status.HTTP_622_MYSQL_ERROR, 'mysql插入数据出错')
         self._close(conn, cursor)
         if return_id:

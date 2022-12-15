@@ -3,16 +3,20 @@
 # @Author  : Yang
 # @Email  : yangjiaxian@ibbd.net
 # @Time    : 2022/11/16
-from datetime import timedelta, datetime
 import chinese_calendar
+from datetime import datetime
 
-# start_time = datetime.date(2022, 1, 1)  # 指定开始时间
-# end_time = datetime.date(2022, 12, 30)   # 指定结束时间
-#
-#
-now = datetime.now()
+from src.common.OptionMysql import OptionMysql
 
-last_week_start = now - timedelta(days=now.weekday() + 7)
-last_week_end = now - timedelta(days=now.weekday() + 1)
+start_time = datetime(2024, 1, 1)  # 指定开始时间
+# start_time = datetime.date()
+end_time = datetime(2024, 12, 30)  # 指定结束时间
 
-print(chinese_calendar.get_workdays(last_week_start, last_week_end))
+data = chinese_calendar.get_workdays(start_time, end_time)
+
+mysql = OptionMysql()
+sql = """INSERT INTO `workday` (date) VALUES(%s) """
+
+for row in data:
+    affect_rows = mysql.insert_one(sql, [str(row)])
+    print(affect_rows)

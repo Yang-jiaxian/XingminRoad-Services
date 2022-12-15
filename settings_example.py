@@ -9,29 +9,14 @@ from typing import Optional
 
 from pydantic import BaseSettings
 
-try:
-    with open(r"C:\Users\yangj\Desktop\github\app_demo\README.md", encoding='utf8') as f:
-        description = f.read()
-
-    _idx = description.index('\n')
-    title = description[:_idx].strip('# ')
-    description = description[_idx + 1:].strip()
-except:
-    title = ""
-    description = ""
-
 
 class DeveSettings(BaseSettings):
     # 开发模式配置
 
     # 应用版本
-    APP_VERSION = "1.0.1"
+    APP_VERSION = "1.0.3"
     # 是否开启DEBUG
     DEBUG: bool = True
-    # 项目文档
-    TITLE: str = title
-    # 描述
-    DESCRIPTION: str = description
     # 文档地址 默认为docs
     DOCS_URL: str = "/docs"
     # 文档关联请求数据接口
@@ -60,19 +45,17 @@ class DeveSettings(BaseSettings):
     LOGS_KEEP_DAYS: int = 10
     # API前缀
     API_PREFIX: str = "/api/v1"
+    # README.MD
+    README_MD_PATH = r"README.md"
 
 
 class ProdSettings(BaseSettings):
     # 生产模式配置
 
     # 应用版本
-    APP_VERSION = "1.0.1"
+    APP_VERSION = "1.0.3"
     # 是否开启DEBUG
     DEBUG: bool = False
-    # 项目文档
-    TITLE: str = title
-    # 描述
-    DESCRIPTION: str = description
     # 文档地址 默认为docs
     DOCS_URL: str = "/docs"
     # 文档关联请求数据接口
@@ -101,6 +84,8 @@ class ProdSettings(BaseSettings):
     LOGS_KEEP_DAYS: int = 10
     # API前缀
     API_PREFIX: str = "/api/v1"
+    # README.MD
+    README_MD_PATH = r"README.md"
 
 
 settings = ProdSettings()
