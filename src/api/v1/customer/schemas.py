@@ -19,6 +19,59 @@ class Permissions(BaseModel):
     beijing_stock_exchange: bool = Field(False, title="北交所")
 
 
+class PrivatePlacementStrategy(BaseModel):
+    """私募的策略类型
+
+    """
+    subjective_long_position: bool = Field(False, title="主观多头")
+    quantifying_long_positions: bool = Field(False, title="量化多头")
+    neutral_strategy: bool = Field(False, title="中性策略")
+    arbitrage_strategy: bool = Field(False, title="套利策略")
+    forward_option: bool = Field(False, title="期货/期权")
+    multi_strategy: bool = Field(False, title="多策略")
+    other: str = Field(None, title="其他")
+
+
+class FundDemand(BaseModel):
+    """资金需求
+
+    """
+    sale_by_proxy: bool = Field(False, title="代销")
+    other: str = Field(None, title="其他")
+
+
+class TechnicalDemand(BaseModel):
+    """技术需求
+
+    """
+    is_need_specific_counter: bool = Field(False, title="是否需要特定柜台")
+    is_need_top_speed_market: bool = Field(False, title="是否需要极速行情")
+    is_need_customization: bool = Field(False, title="是否需要定制化")
+    is_need_tripartite_algorithms: bool = Field(False, title="是否有三方算法需求")
+
+
+class BondSourceDemand(BaseModel):
+    """券源需求
+
+    """
+    sector_basket_stocks: bool = Field(False, title="行业篮子股票券源")
+    wide_base_basket_stocks: bool = Field(False, title="宽基篮子股票券源")
+    individual_share: bool = Field(False, title="个股券源")
+    other: str = Field(None, title="其他")
+
+
+class InvestmentResearchDemand(BaseModel):
+    """投研需求
+
+    """
+    research_report_of_the_institute: bool = Field(False, title="研究所研报")
+    research_institute_whitelist: bool = Field(False, title="研究所白名单")
+    institute_annual_fee_service: bool = Field(False, title="研究所年费服务")
+    participate_in_the_institute_road_show: bool = Field(False, title="参与研究所路演")
+    annual_meeting: bool = Field(False, title="半年度/年度会议")
+    other: str = Field(None, title="其他")
+
+
 class CreateCustomerParams(BaseModel):
     capital_account: str = Field(..., title="资金账号")
     customer_type: CustomerType = Field(default=CustomerType.individual_customer.value, title="客户类型",
@@ -50,11 +103,11 @@ class CreateCustomerParams(BaseModel):
     remark: str = Field(None, title="备注")
 
     scale_of_management: ScaleOfManagement = Field(ScaleOfManagement.zero_to_five.value, title="管理规模")
-    private_placement_strategy: List[str] = Field(['主观多头', '量化多头', '中性策略', '套利策略', '期货/期权', '多策略'], title="私募的策略类型")
-    fund_demand: List[str] = Field(['代销'], title="资金需求")
-    technical_demand: List[str] = Field(['是否需要特定柜台', '是否需要极速行情', '是否需要定制化', '是否有三方算法需求'], title="技术需求")
-    bond_source_demand: List[str] = Field(['行业篮子股票券源', '宽基篮子股票券源', '个股券源'], title="券源需求")
-    investment_research_demand: List[str] = Field(['研究所研报', '研究所白名单', '研究所年费服务', '参与研究所路演', '半年度/年度会议'], title="投研需求")
+    private_placement_strategy: PrivatePlacementStrategy = Field(None, title="私募的策略类型")
+    fund_demand: FundDemand = Field(None, title="资金需求")
+    technical_demand: TechnicalDemand = Field(None, title="技术需求")
+    bond_source_demand: BondSourceDemand = Field(None, title="券源需求")
+    investment_research_demand: InvestmentResearchDemand = Field(None, title="投研需求")
 
 
 class UpdateCustomerParams(BaseModel):

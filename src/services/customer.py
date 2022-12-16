@@ -44,6 +44,9 @@ class CustomerServices(object):
         """更新客户信息
 
         """
+        if kwargs["interest_rate_expiry_date"]:
+            kwargs["interest_rate_expiry_remind_date"] = get_before_workday(kwargs["interest_rate_expiry_date"], INTEREST_RATE_EXPIRY_REMIND_DURATION)
+
         mysql = OptionMysql()
         affect_rows = mysql.update_dict("customer", where=f"`id`={customerId}", data=kwargs)
         if affect_rows != 1:
@@ -57,7 +60,6 @@ class CustomerServices(object):
         mysql = OptionMysql()
         sql_statement = """SELECT * FROM `customer` WHERE `is_delete`=0 AND `id`=%s"""
         result = mysql.fetch_one(sql_statement, [customerId])
-
         result["permissions"] = json.loads(result["permissions"]) if result["permissions"] else {}
         result["fund_demand"] = json.loads(result["fund_demand"]) if result["fund_demand"] else {}
         result["technical_demand"] = json.loads(result["technical_demand"]) if result["technical_demand"] else {}
@@ -75,8 +77,8 @@ class CustomerServices(object):
                    developer, assignmenter, is_internet_channel, follower, margin_account, pageNo, pageSize):
         params = []
         if remind_type == RemindType.interest_rate_expiry_customers:
-            total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date`=%s"""
-            data_sql = """SELECT * FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date`=%s"""
+            total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
+            data_sql = """SELECT * FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
             params.append(str(datetime.datetime.today().date()))
         elif remind_type == RemindType.fund_expiry_customers:
             total_sql = """SELECT count(customer.*) as total FROM `customer` RIGHT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
@@ -180,7 +182,7 @@ class CustomerServices(object):
                             FROM
                                 `customer` 
                             WHERE
-                                `interest_rate_expiry_remind_date` =% s 
+                                `interest_rate_expiry_remind_date` <% s 
                                 AND `is_delete` = 0 
                             GROUP BY
                                 `customer_type`"""
