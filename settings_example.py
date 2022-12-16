@@ -32,7 +32,7 @@ class DeveSettings(BaseSettings):
     # 项目根路径
     BASE_PATH: str = os.path.dirname(os.path.dirname(os.path.dirname((os.path.abspath(__file__)))))
     # 日志文件夹
-    LOGS_DIR: str = r"F:\code\XingminRoad-Service\logs"
+    LOGS_DIR: str = r"logs"
     # MYSQL数据库配置
     MYSQL_CONFIG: dict = {
         'HOST': "127.0.0.1",

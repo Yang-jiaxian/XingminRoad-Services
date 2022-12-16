@@ -39,6 +39,9 @@ class FundServices(object):
         """更新客户基金数据
 
         """
+        # 如果改了基金过期的时间，则对应修改提醒时间
+        if kwargs["due_date"]:
+            kwargs["remind_date"] = get_before_workday(kwargs["due_date"], FUND_REMIND_DURATION)
         mysql = OptionMysql()
         affect_rows = mysql.update_dict("fund", where=f"`id`={fundId}", data=kwargs)
         if affect_rows != 1:

@@ -38,6 +38,17 @@ class ContactServices(object):
         """更新联系记录
 
         """
+        # 如果改了下次联系的时间
+        if kwargs["next_contact_date"]:
+            if kwargs["remind_duration"]:
+                kwargs["remind_date"] = get_before_workday(kwargs["next_contact_date"], kwargs["remind_duration"])
+            else:
+                the_contact = ContactServices().fetch_one(contactId)
+                kwargs["remind_date"] = get_before_workday(kwargs["next_contact_date"], the_contact["remind_duration"])
+        if kwargs["remind_duration"]:
+            the_contact = ContactServices().fetch_one(contactId)
+            kwargs["remind_date"] = get_before_workday(the_contact["next_contact_date"], kwargs["remind_duration"])
+
         mysql = OptionMysql()
         affect_rows = mysql.update_dict("contact", where=f"`id`={contactId}", data=kwargs)
         if affect_rows != 1:

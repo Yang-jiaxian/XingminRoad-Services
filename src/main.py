@@ -93,7 +93,7 @@ async def remove_file():
     """不断清理过期的文件
 
     """
-    logger.info('检测过期文件')
+    logger.info('删除过期日志文件')
     event_loop = asyncio.get_event_loop()
     event_loop.run_in_executor(None, delete_dir, settings.LOGS_DIR, settings.LOGS_KEEP_DAYS)
 

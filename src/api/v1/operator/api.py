@@ -8,6 +8,7 @@ from fastapi import APIRouter, Query, Path, Body
 from src.error import InternalException, status
 from src.services.operator import OperatorServices
 from src.utils import output_json
+from typing import Optional
 
 operator_app = APIRouter(tags=["操作人"])
 
@@ -36,8 +37,8 @@ async def delete_operator_api(
 
 @operator_app.get("/operators", summary="获取操作人")
 async def fetch_operator_api(
-        pageNo: int = Query(None, title="页码", description="非必填，不传获取所有"),
-        pageSize: int = Query(None, title="页大小", description="非必填，不传获取所有")
+        pageNo: Optional[int] = Query(None, title="页码，不传获取所有"),
+        pageSize: Optional[int] = Query(None, title="页大小，不传获取所有")
 ):
     if pageNo is not None:
         assert pageNo > 0

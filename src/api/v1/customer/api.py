@@ -25,6 +25,16 @@ async def create_customers_api(
 ):
     if params.permissions:
         params.permissions = json.dumps(params.permissions.dict())
+    if params.private_placement_strategy:
+        params.private_placement_strategy = json.dumps(params.private_placement_strategy.dict())
+    if params.fund_demand:
+        params.fund_demand = json.dumps(params.fund_demand.dict())
+    if params.technical_demand:
+        params.technical_demand = json.dumps(params.technical_demand.dict())
+    if params.bond_source_demand:
+        params.bond_source_demand = json.dumps(params.bond_source_demand.dict())
+    if params.investment_research_demand:
+        params.investment_research_demand = json.dumps(params.investment_research_demand.dict())
 
     # 个人客户
     if params.customer_type.value == CustomerType.individual_customer.value:
@@ -71,10 +81,6 @@ async def update_customer_api(
     if params.customer_type:
         params.customer_type = params.customer_type.value
 
-    # kwargs = {k: v for k, v in params.dict().items() if v is not None}
-    # if not kwargs:
-    #     return output_json(data={"customer_id": customerId}, message="修改客户数据成功")
-    # TODO
     CustomerServices().update(customerId, **params.dict())
 
     LogServices().create(operator_id, f"修改了ID为{customerId}的客户", params.dict())
@@ -119,8 +125,8 @@ async def fetch_customers_api(
         is_internet_channel: bool = Query(None, title="是否是互联网渠道"),
         margin_account: str = Query(None, title="融资融券账号", description="模糊查询"),
         remind_type: RemindType = Query(None, title="提醒的类型", description="不填就不过滤"),
-        pageNo: int = Query(1, title="页码"),
-        pageSize: int = Query(20, title="页大小")
+        pageNo: int = Query(1, ge=0, title="页码"),
+        pageSize: int = Query(20, ge=0, title="页大小")
 ):
     """
     提醒类型（三种）：融资融券失效客户、基金到期客户、需要联系的客户\n

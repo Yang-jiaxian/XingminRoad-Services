@@ -3,6 +3,7 @@
 # @Author  : Yang
 # @Email  : yangjiaxian@ibbd.net
 # @Time    : 2022/11/15
+from typing import Optional
 from pydantic import BaseModel, Field
 from src.const import DATE_REGEX
 

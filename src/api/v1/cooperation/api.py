@@ -60,21 +60,17 @@ async def update_cooperation_api(
     if not result:
         raise InternalException(status.HTTP_601_ID_NOT_EXIST, message="合作券商ID已删除或不存在")
 
-    kwargs = {k: v for k, v in params.dict().items() if v is not None}
-    if not kwargs:
-        return output_json(data={"cooperation_id": cooperationId}, message="修改合作券商成功")
+    CooperationServices().update(cooperationId, **params.dict())
 
-    CooperationServices().update(cooperationId, **kwargs)
-
-    LogServices().create(operator_id, f"修改了ID为{cooperationId}的合作券商", kwargs)
+    LogServices().create(operator_id, f"修改了ID为{cooperationId}的合作券商", params.dict())
     return output_json(data={"cooperation_id": cooperationId}, message="修改合作券商成功")
 
 
 @cooperation_app.get("/cooperations", summary="获取合作券商")
 async def fetch_cooperation_api(
         customerId: int = Query(None, title="客户ID"),
-        pageNo: int = Query(1, title="页码"),
-        pageSize: int = Query(20, title="页大小")
+        pageNo: int = Query(1, ge=0, title="页码"),
+        pageSize: int = Query(20, ge=0, title="页大小")
 ):
     if pageNo is not None:
         assert pageNo > 0
