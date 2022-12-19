@@ -8,7 +8,9 @@ import json
 
 from fastapi import APIRouter, Path, Query, Depends
 
-from src.api.v1.customer.schemas import CreateCustomerParams, UpdateCustomerParams
+from src.api.v1.customer.schemas import CreateCustomerParams, UpdateCustomerParams, GetRemindCustomersCountResp, \
+    CreateCustomerResp, FetchCustomersResp
+from typing import Optional
 from src.const import CustomerType, RemindType
 from src.error import InternalException, status
 from src.services.customer import CustomerServices
@@ -18,7 +20,7 @@ from src.utils import output_json, check_operator
 customer_app = APIRouter(tags=["客户"])
 
 
-@customer_app.post("/customers", summary="新增客户")
+@customer_app.post("/customers", summary="新增客户", response_model=CreateCustomerResp)
 async def create_customers_api(
         params: CreateCustomerParams,
         operator_id: int = Depends(check_operator)
@@ -62,10 +64,10 @@ async def create_customers_api(
     customer_id = CustomerServices().create(**params.dict())
 
     LogServices().create(operator_id, f"新增了ID为{customer_id}的客户", params.dict())
-    return output_json(data={"customer_id": customer_id}, message="新增客户成功")
+    return output_json(data={"customer_id": customer_id}, message="")
 
 
-@customer_app.put(path="/customers/{customerId}", summary="修改客户信息")
+@customer_app.put(path="/customers/{customerId}", summary="修改客户信息", response_model=CreateCustomerResp)
 async def update_customer_api(
         params: UpdateCustomerParams,
         customerId: int = Path(..., title="客户ID", description="客户ID"),
@@ -84,10 +86,10 @@ async def update_customer_api(
     CustomerServices().update(customerId, **params.dict())
 
     LogServices().create(operator_id, f"修改了ID为{customerId}的客户", params.dict())
-    return output_json(data={"customer_id": customerId}, message="修改客户数据成功")
+    return output_json(data={"customer_id": customerId}, message="")
 
 
-@customer_app.delete(path="/customers/{customerId}", summary="删除客户")
+@customer_app.delete(path="/customers/{customerId}", summary="删除客户", response_model=CreateCustomerResp)
 async def delete_customer_api(
         customerId: int = Path(..., title="客户ID", description="客户ID"),
         operator_id: int = Depends(check_operator)
@@ -102,7 +104,7 @@ async def delete_customer_api(
     return output_json(data={"customer_id": customerId}, message="删除客户成功")
 
 
-@customer_app.get(path="/customers/remind/count", summary="获取提醒的客户数量")
+@customer_app.get(path="/customers/remind/count", summary="获取提醒的客户数量", response_model=GetRemindCustomersCountResp)
 async def get_remind_customers_count_api(
         operator_id: int = Depends(check_operator)
 ):
@@ -111,7 +113,7 @@ async def get_remind_customers_count_api(
     return output_json(data=data, message="")
 
 
-@customer_app.get(path="/customers", summary="查询客户")
+@customer_app.get(path="/customers", summary="查询客户", response_model=FetchCustomersResp)
 async def fetch_customers_api(
         customer_id: int = Query(None, title="客户ID", description="客户ID"),
         capital_account: str = Query(None, title="资金账号", description="资金账号"),
@@ -124,7 +126,7 @@ async def fetch_customers_api(
         follower: str = Query(None, title="跟进情况", description="跟进情况"),
         is_internet_channel: bool = Query(None, title="是否是互联网渠道", description="是否是互联网渠道"),
         margin_account: str = Query(None, title="融资融券账号", description="融资融券账号"),
-        remind_type: RemindType = Query(None, title="提醒的类型", description="提醒的类型, 不填就不过滤"),
+        remind_type: Optional[RemindType] = Query(None, title="提醒的类型", description="提醒的类型, 不填就不过滤"),
         pageNo: int = Query(1, ge=0, title="页码", description="页码"),
         pageSize: int = Query(20, ge=0, title="页大小", description="页大小"),
         operator_id: int = Depends(check_operator)
