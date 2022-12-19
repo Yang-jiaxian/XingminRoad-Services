@@ -35,7 +35,7 @@ async def create_cooperation_api(
 
 @cooperation_app.delete("/cooperations/{cooperationId}", summary="删除合作券商")
 async def delete_cooperation_api(
-        cooperationId: int = Path(..., title="合作券商ID"),
+        cooperationId: int = Path(..., title="合作券商ID", description="合作券商ID"),
         operator_id: int = Depends(check_operator)
 ):
     result = CooperationServices().fetch_one(cooperationId)
@@ -52,7 +52,7 @@ async def delete_cooperation_api(
 @cooperation_app.put("/cooperations/{cooperationId}", summary="修改合作券商")
 async def update_cooperation_api(
         params: UpdateCooperationParams,
-        cooperationId: int = Path(..., title="合作券商ID"),
+        cooperationId: int = Path(..., title="合作券商ID", description="合作券商ID"),
         operator_id: int = Depends(check_operator)
 
 ):
@@ -68,9 +68,10 @@ async def update_cooperation_api(
 
 @cooperation_app.get("/cooperations", summary="获取合作券商")
 async def fetch_cooperation_api(
-        customerId: int = Query(None, title="客户ID"),
-        pageNo: int = Query(1, ge=0, title="页码"),
-        pageSize: int = Query(20, ge=0, title="页大小")
+        customerId: int = Query(None, title="客户ID", description="客户ID"),
+        pageNo: int = Query(1, ge=0, title="页码", description="页码"),
+        pageSize: int = Query(20, ge=0, title="页大小", description="页大小"),
+        operator_id: int = Depends(check_operator)
 ):
     if pageNo is not None:
         assert pageNo > 0

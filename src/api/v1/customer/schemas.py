@@ -73,7 +73,7 @@ class InvestmentResearchDemand(BaseModel):
 
 
 class CreateCustomerParams(BaseModel):
-    capital_account: str = Field(..., title="资金账号")
+    capital_account: str = Field(..., title="资金账号", description="个人客户是资金账号，机构客户是私募编码")
     customer_type: CustomerType = Field(default=CustomerType.individual_customer.value, title="客户类型",
                                         description="默认个人客户")
     name: str = Field(..., title="名字", description="个人客户时是姓名，机构客户时是机构名")
@@ -138,8 +138,8 @@ class UpdateCustomerParams(BaseModel):
     remark: str = Field(None, title="备注")
 
     scale_of_management: ScaleOfManagement = Field(ScaleOfManagement.zero_to_five.value, title="管理规模")
-    private_placement_strategy: List[str] = Field(['主观多头', '量化多头', '中性策略', '套利策略', '期货/期权', '多策略'], title="私募的策略类型")
-    fund_demand: List[str] = Field(['代销'], title="资金需求")
-    technical_demand: List[str] = Field(['是否需要特定柜台', '是否需要极速行情', '是否需要定制化', '是否有三方算法需求'], title="技术需求")
-    bond_source_demand: List[str] = Field(['行业篮子股票券源', '宽基篮子股票券源', '个股券源'], title="券源需求")
-    investment_research_demand: List[str] = Field(['研究所研报', '研究所白名单', '研究所年费服务', '参与研究所路演', '半年度/年度会议'], title="投研需求")
+    private_placement_strategy: PrivatePlacementStrategy = Field(None, title="私募的策略类型")
+    fund_demand: FundDemand = Field(None, title="资金需求")
+    technical_demand: TechnicalDemand = Field(None, title="技术需求")
+    bond_source_demand: BondSourceDemand = Field(None, title="券源需求")
+    investment_research_demand: InvestmentResearchDemand = Field(None, title="投研需求")

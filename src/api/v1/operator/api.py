@@ -15,8 +15,8 @@ operator_app = APIRouter(tags=["操作人"])
 
 @operator_app.post("/operators", summary="新增操作人")
 async def create_operator_api(
-        name: str = Body(..., title="操作人名字"),
-        phone: str = Body(..., title="操作人名字"),
+        name: str = Body(..., title="操作人名字", description="操作人名字"),
+        phone: str = Body(..., title="操作人联系方式", description="操作人联系方式"),
 
 ):
     operator_id = OperatorServices().create(name, phone)
@@ -25,7 +25,7 @@ async def create_operator_api(
 
 @operator_app.delete("/operators/{operatorId}", summary="删除操作人")
 async def delete_operator_api(
-        operatorId: int = Path(..., title="操作人ID")
+        operatorId: int = Path(..., title="操作人ID", description="操作人ID")
 ):
     result = OperatorServices().fetch_one(operatorId)
     if not result:
@@ -37,8 +37,8 @@ async def delete_operator_api(
 
 @operator_app.get("/operators", summary="获取操作人")
 async def fetch_operator_api(
-        pageNo: Optional[int] = Query(None, title="页码，不传获取所有"),
-        pageSize: Optional[int] = Query(None, title="页大小，不传获取所有")
+        pageNo: Optional[int] = Query(None, title="页码，不传获取所有", description="页码，不传获取所有"),
+        pageSize: Optional[int] = Query(None, title="页大小，不传获取所有", description="页大小，不传获取所有")
 ):
     if pageNo is not None:
         assert pageNo > 0

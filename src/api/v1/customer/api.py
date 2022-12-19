@@ -68,7 +68,7 @@ async def create_customers_api(
 @customer_app.put(path="/customers/{customerId}", summary="修改客户信息")
 async def update_customer_api(
         params: UpdateCustomerParams,
-        customerId: int = Path(..., title="客户ID"),
+        customerId: int = Path(..., title="客户ID", description="客户ID"),
         operator_id: int = Depends(check_operator)
 
 ):
@@ -89,7 +89,7 @@ async def update_customer_api(
 
 @customer_app.delete(path="/customers/{customerId}", summary="删除客户")
 async def delete_customer_api(
-        customerId: int = Path(..., title="客户ID"),
+        customerId: int = Path(..., title="客户ID", description="客户ID"),
         operator_id: int = Depends(check_operator)
 ):
     # 检查客户ID是否存在
@@ -113,20 +113,21 @@ async def get_remind_customers_count_api(
 
 @customer_app.get(path="/customers", summary="查询客户")
 async def fetch_customers_api(
-        customer_id: int = Query(None, title="客户ID"),
-        capital_account: str = Query(None, title="资金账号", description="模糊查询"),
-        customer_type: CustomerType = Query(None, title="客户类型", description="默认为空"),
-        name: str = Query(None, title="名称", description="模糊查询"),
-        contact_person: str = Query(None, title="联系人", description="模糊查询"),
-        phone: str = Query(None, title="联系方式（手机号码）", description="模糊查询"),
-        developer: str = Query(None, title="开发关系（开发人）", description="模糊查询"),
-        assignmenter: str = Query(None, title="服务包分配", description="模糊查询"),
-        follower: str = Query(None, title="跟进情况", description="模糊查询"),
-        is_internet_channel: bool = Query(None, title="是否是互联网渠道"),
-        margin_account: str = Query(None, title="融资融券账号", description="模糊查询"),
-        remind_type: RemindType = Query(None, title="提醒的类型", description="不填就不过滤"),
-        pageNo: int = Query(1, ge=0, title="页码"),
-        pageSize: int = Query(20, ge=0, title="页大小")
+        customer_id: int = Query(None, title="客户ID", description="客户ID"),
+        capital_account: str = Query(None, title="资金账号", description="资金账号"),
+        customer_type: CustomerType = Query(None, title="客户类型", description="客户类型"),
+        name: str = Query(None, title="名称", description="名称/名字"),
+        contact_person: str = Query(None, title="联系人", description="联系人（人名）"),
+        phone: str = Query(None, title="联系方式（手机号码）", description="联系方式（手机号码）"),
+        developer: str = Query(None, title="开发关系（开发人）", description="开发关系（开发人）"),
+        assignmenter: str = Query(None, title="服务包分配", description="服务包分配"),
+        follower: str = Query(None, title="跟进情况", description="跟进情况"),
+        is_internet_channel: bool = Query(None, title="是否是互联网渠道", description="是否是互联网渠道"),
+        margin_account: str = Query(None, title="融资融券账号", description="融资融券账号"),
+        remind_type: RemindType = Query(None, title="提醒的类型", description="提醒的类型, 不填就不过滤"),
+        pageNo: int = Query(1, ge=0, title="页码", description="页码"),
+        pageSize: int = Query(20, ge=0, title="页大小", description="页大小"),
+        operator_id: int = Depends(check_operator)
 ):
     """
     提醒类型（三种）：融资融券失效客户、基金到期客户、需要联系的客户\n

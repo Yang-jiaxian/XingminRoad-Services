@@ -33,7 +33,7 @@ async def create_fund_api(
 
 @fund_app.delete("/funds/{fundId}", summary="删除客户基金数据")
 async def delete_fund_api(
-        fundId: int = Path(..., title="客户基金数据ID"),
+        fundId: int = Path(..., title="客户基金数据ID", description="客户基金数据ID"),
         operator_id: int = Depends(check_operator)
 ):
     result = FundServices().fetch_one(fundId)
@@ -48,7 +48,7 @@ async def delete_fund_api(
 @fund_app.put("/funds/{fundId}", summary="修改客户基金数据")
 async def update_fund_api(
         params: UpdateFundParams,
-        fundId: int = Path(..., title="客户基金数据ID"),
+        fundId: int = Path(..., title="客户基金数据ID", description="客户基金数据ID"),
         operator_id: int = Depends(check_operator)
 ):
     result = FundServices().fetch_one(fundId)
@@ -63,9 +63,10 @@ async def update_fund_api(
 
 @fund_app.get("/funds", summary="获取客户基金数据")
 async def fetch_fund_api(
-        customerId: int = Query(None, title="客户ID"),
-        pageNo: int = Query(1, ge=0, title="页码"),
-        pageSize: int = Query(20, ge=0, title="页大小")
+        customerId: int = Query(None, title="客户ID", description="客户ID"),
+        pageNo: int = Query(1, ge=0, title="页码", description="页码"),
+        pageSize: int = Query(20, ge=0, title="页大小", description="页大小"),
+        operator_id: int = Depends(check_operator)
 ):
     total, funds = FundServices().fetch_date(customerId, pageNo, pageSize)
     return output_json(data=funds, total=total, message="获取客户基金数据成功")

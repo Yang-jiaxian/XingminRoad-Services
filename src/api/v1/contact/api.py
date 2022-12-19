@@ -40,7 +40,7 @@ async def create_contact_api(
 
 @contact_app.delete("/contacts/{contactId}", summary="删除联系记录")
 async def delete_contact_api(
-        contactId: int = Path(..., title="联系记录ID"),
+        contactId: int = Path(..., title="联系记录ID", description="联系记录ID"),
         operator_id: int = Depends(check_operator)
 ):
     result = ContactServices().fetch_one(contactId)
@@ -58,7 +58,7 @@ async def delete_contact_api(
 @contact_app.put("/contacts/{contactId}", summary="修改联系记录")
 async def update_contact_api(
         params: UpdateContactParams,
-        contactId: int = Path(..., title="联系记录ID"),
+        contactId: int = Path(..., title="联系记录ID", description="联系记录ID"),
         operator_id: int = Depends(check_operator)
 
 ):
@@ -74,9 +74,10 @@ async def update_contact_api(
 
 @contact_app.get("/contacts", summary="获取联系记录")
 async def fetch_contact_api(
-        customerId: int = Query(None, title="客户ID"),
-        pageNo: int = Query(1, ge=0, title="页码"),
-        pageSize: int = Query(20, ge=0, title="页大小")
+        customerId: int = Query(None, title="客户ID", description="客户ID"),
+        pageNo: int = Query(1, ge=0, title="页码", description="页码"),
+        pageSize: int = Query(20, ge=0, title="页大小", description="页大小"),
+        operator_id: int = Depends(check_operator)
 ):
     total, contacts = ContactServices().fetch_date(customerId, pageNo, pageSize)
     return output_json(data=contacts, total=total, message="获取联系记录成功")
