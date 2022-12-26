@@ -45,12 +45,12 @@ class CustomerServices(object):
 
         """
         if kwargs["interest_rate_expiry_date"]:
-            kwargs["interest_rate_expiry_remind_date"] = get_before_workday(kwargs["interest_rate_expiry_date"], INTEREST_RATE_EXPIRY_REMIND_DURATION)
+            kwargs["interest_rate_expiry_remind_date"] = get_before_workday(kwargs["interest_rate_expiry_date"],
+                                                                            INTEREST_RATE_EXPIRY_REMIND_DURATION)
 
         mysql = OptionMysql()
         affect_rows = mysql.update_dict("customer", where=f"`id`={customerId}", data=kwargs)
-        if affect_rows != 1:
-            raise InternalException(status.HTTP_622_MYSQL_ERROR, message="修改客户数据失败")
+
 
     @staticmethod
     def fetch_one(customerId):
@@ -64,8 +64,10 @@ class CustomerServices(object):
         result["fund_demand"] = json.loads(result["fund_demand"]) if result["fund_demand"] else {}
         result["technical_demand"] = json.loads(result["technical_demand"]) if result["technical_demand"] else {}
         result["bond_source_demand"] = json.loads(result["bond_source_demand"]) if result["bond_source_demand"] else {}
-        result["investment_research_demand"] = json.loads(result["investment_research_demand"]) if result["investment_research_demand"] else {}
-        result["private_placement_strategy"] = json.loads(result["private_placement_strategy"]) if result["private_placement_strategy"] else {}
+        result["investment_research_demand"] = json.loads(result["investment_research_demand"]) if result[
+            "investment_research_demand"] else {}
+        result["private_placement_strategy"] = json.loads(result["private_placement_strategy"]) if result[
+            "private_placement_strategy"] else {}
         if result["contact_status"] == 0:
             result["contact_status"] = "从未联系"
         else:
@@ -74,7 +76,7 @@ class CustomerServices(object):
 
     @staticmethod
     def fetch_data(remind_type, customer_id, capital_account, customer_type, name, contact_person, phone,
-                   developer, assignmenter, is_internet_channel, follower, margin_account, pageNo, pageSize):
+                   developer, assignmenter, is_internet_channel, follower, margin_account, gender, pageNo, pageSize):
         params = []
         if remind_type == RemindType.interest_rate_expiry_customers:
             total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
@@ -104,6 +106,10 @@ class CustomerServices(object):
             total_sql += """ AND customer.is_internet_channel=%s"""
             data_sql += """ AND customer.is_internet_channel=%s"""
             params.append(is_internet_channel)
+        if gender is not None:
+            total_sql += """ AND customer.gender=%s"""
+            data_sql += """ AND customer.gender=%s"""
+            params.append(gender)
         if capital_account is not None:
             total_sql += " AND customer.capital_account LIKE %s"
             data_sql += " AND customer.capital_account LIKE %s"
@@ -168,9 +174,7 @@ class CustomerServices(object):
         result = mysql.fetch_one(sql_statement, [customerId])
 
         sql_statement = """UPDATE `customer` SET `contact_status`=%s WHERE `is_delete`=0 AND `id`=%s"""
-        affect_rows = mysql.update_one(sql_statement, [result["count"], customerId])
-        if affect_rows != 1:
-            raise InternalException(status.HTTP_622_MYSQL_ERROR, message="修改客户联系状态失败")
+        mysql.update_one(sql_statement, [result["count"], customerId])
 
     @staticmethod
     def get_remind_customers_count(date):

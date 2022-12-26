@@ -52,7 +52,7 @@ async def delete_cooperation_api(
 
 @cooperation_app.put("/cooperations/{cooperationId}", summary="修改合作券商", response_model=CreateCooperationResp)
 async def update_cooperation_api(
-        params: UpdateCooperationParams,
+        params: CreateCooperationParams,
         cooperationId: int = Path(..., title="合作券商ID", description="合作券商ID"),
         operator_id: int = Depends(check_operator)
 

@@ -84,6 +84,7 @@ class ContactServices(object):
                             `contact_detail`,
                             `demand`,
                             `next_contact_date`,
+                            `remind_duration`,
                             `remind_date` 
                         FROM
                             `contact` 

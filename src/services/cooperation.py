@@ -38,9 +38,8 @@ class CooperationServices(object):
 
         """
         mysql = OptionMysql()
-        affect_rows = mysql.update_dict("cooperative_brokerage", where=f"`id`={cooperationId}", data=kwargs)
-        if affect_rows != 1:
-            raise InternalException(status.HTTP_622_MYSQL_ERROR, message="修改合作券商失败")
+        mysql.update_dict("cooperative_brokerage", where=f"`id`={cooperationId}", data=kwargs)
+
 
     @staticmethod
     def fetch_one(cooperationId: int):

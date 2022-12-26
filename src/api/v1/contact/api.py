@@ -57,7 +57,7 @@ async def delete_contact_api(
 
 @contact_app.put("/contacts/{contactId}", summary="修改联系记录", response_model=CreateContactResp)
 async def update_contact_api(
-        params: UpdateContactParams,
+        params: CreateContactParams,
         contactId: int = Path(..., title="联系记录ID", description="联系记录ID"),
         operator_id: int = Depends(check_operator)
 

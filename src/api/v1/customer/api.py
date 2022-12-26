@@ -8,10 +8,10 @@ import json
 
 from fastapi import APIRouter, Path, Query, Depends
 
-from src.api.v1.customer.schemas import CreateCustomerParams, UpdateCustomerParams, GetRemindCustomersCountResp, \
+from src.api.v1.customer.schemas import CreateCustomerParams, GetRemindCustomersCountResp, \
     CreateCustomerResp, FetchCustomersResp
 from typing import Optional
-from src.const import CustomerType, RemindType
+from src.const import CustomerType, RemindType, Gender
 from src.error import InternalException, status
 from src.services.customer import CustomerServices
 from src.services.log import LogServices
@@ -69,19 +69,47 @@ async def create_customers_api(
 
 @customer_app.put(path="/customers/{customerId}", summary="修改客户信息", response_model=CreateCustomerResp)
 async def update_customer_api(
-        params: UpdateCustomerParams,
+        params: CreateCustomerParams,
         customerId: int = Path(..., title="客户ID", description="客户ID"),
         operator_id: int = Depends(check_operator)
 
 ):
-    # 检查客户ID是否存在
-    if not CustomerServices().fetch_one(customerId):
-        raise InternalException(status.HTTP_601_ID_NOT_EXIST, message="客户ID不存在")
-
     if params.permissions:
         params.permissions = json.dumps(params.permissions.dict())
-    if params.customer_type:
-        params.customer_type = params.customer_type.value
+    if params.private_placement_strategy:
+        params.private_placement_strategy = json.dumps(params.private_placement_strategy.dict())
+    if params.fund_demand:
+        params.fund_demand = json.dumps(params.fund_demand.dict())
+    if params.technical_demand:
+        params.technical_demand = json.dumps(params.technical_demand.dict())
+    if params.bond_source_demand:
+        params.bond_source_demand = json.dumps(params.bond_source_demand.dict())
+    if params.investment_research_demand:
+        params.investment_research_demand = json.dumps(params.investment_research_demand.dict())
+
+    # 个人客户
+    if params.customer_type.value == CustomerType.individual_customer.value:
+        if params.gender is None:
+            raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, message="缺少性别参数")
+        if params.assignmenter:
+            if not params.developer:
+                raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, message="缺少开发关系参数")
+            if params.assignmenter != params.developer:
+                raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, message="服务包分配应该和开发关系一致")
+        # 清空这些机构客户选项
+        params.scale_of_management = None
+        params.private_placement_strategy = None
+        params.fund_demand = None
+        params.technical_demand = None
+        params.bond_source_demand = None
+        params.investment_research_demand = None
+    # 机构客户
+    if params.customer_type.value == CustomerType.institutional_customer.value:
+        if not params.contact_person:
+            raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, message="缺少联系人参数")
+    # 处理枚举类型
+    params.customer_type = params.customer_type.value
+    params.gender = params.gender.value
 
     CustomerServices().update(customerId, **params.dict())
 
@@ -117,7 +145,8 @@ async def get_remind_customers_count_api(
 async def fetch_customers_api(
         customer_id: int = Query(None, title="客户ID", description="客户ID"),
         capital_account: str = Query(None, title="资金账号", description="资金账号"),
-        customer_type: CustomerType = Query(None, title="客户类型", description="客户类型"),
+        customer_type: Optional[CustomerType] = Query(None, title="客户类型", description="客户类型"),
+        gender: Optional[Gender] = Query(None, title="性别", description="0是男性，1是女性"),
         name: str = Query(None, title="名称", description="名称/名字"),
         contact_person: str = Query(None, title="联系人", description="联系人（人名）"),
         phone: str = Query(None, title="联系方式（手机号码）", description="联系方式（手机号码）"),
@@ -135,9 +164,13 @@ async def fetch_customers_api(
     提醒类型（三种）：融资融券失效客户、基金到期客户、需要联系的客户\n
     说明：这种提醒类型配合客户类型查询出符合条件的客户
     """
+    if customer_type is not None:
+        customer_type = customer_type.value
+    if gender is not None:
+        gender = gender.value
     total, data = CustomerServices().fetch_data(remind_type, customer_id, capital_account, customer_type, name,
                                                 contact_person,
                                                 phone, developer, assignmenter, is_internet_channel, follower,
-                                                margin_account,
+                                                margin_account, gender,
                                                 pageNo, pageSize)
     return output_json(data=data, message='', total=total)

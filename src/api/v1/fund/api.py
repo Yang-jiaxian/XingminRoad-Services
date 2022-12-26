@@ -47,7 +47,7 @@ async def delete_fund_api(
 
 @fund_app.put("/funds/{fundId}", summary="修改客户基金数据", response_model=CreateFundResp)
 async def update_fund_api(
-        params: UpdateFundParams,
+        params: CreateFundParams,
         fundId: int = Path(..., title="客户基金数据ID", description="客户基金数据ID"),
         operator_id: int = Depends(check_operator)
 ):

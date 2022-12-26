@@ -39,6 +39,7 @@ class FetchContactsResp_Contact(BaseModel):
     contact_detail: str = Field(..., title="联系详情", description="联系详情")
     demand: str = Field(..., title="需求", description="需求")
     next_contact_date: str = Field(None, regex=DATE_REGEX, title="预约下次联系时间")
+    remind_duration: int = Field(..., gt=0, title="提醒时长", description="前N个工作日")
     remind_date: str = Field(None, regex=DATE_REGEX, title="提醒时间")
 
 
