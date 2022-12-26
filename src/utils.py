@@ -5,6 +5,8 @@
 # @Time    : 2022/9/21
 import os
 import time
+
+import pandas as pd
 from fastapi import Header, Request
 from fastapi.responses import JSONResponse
 from datetime import datetime, date
@@ -98,6 +100,39 @@ def check_operator(operator_id: int = Header(...), requests: Request = None):
     if operator_id not in operator_list:
         raise InternalException(status.HTTP_401_UNAUTHORIZED, "No Auth")
     return operator_id
+
+
+def export_data_to_excel(save_file, columns, excel_data):
+
+    data_df = pd.DataFrame(data=excel_data, columns=columns)
+    with pd.ExcelWriter(path=save_file, engine="xlsxwriter", options={'strings_to_urls': False}) as writer:
+        data_df.to_excel(excel_writer=writer, sheet_name="Sheet1", encoding='utf8', header=False, index=False,
+                         startcol=0, startrow=1)
+        modify_excel_format(excel_data, writer, data_df)
+        writer.save()
+    writer.close()
+
+
+def modify_excel_format(excel_data, writer, df, sheet_name='Sheet1'):
+    # 调整excel格式
+    workbook = writer.book
+    fmt = workbook.add_format({"font_name": u"宋体"})
+    col_fmt = workbook.add_format(
+        {'bold': True, 'font_size': 11, 'font_name': u'宋体', 'border': 1, 'bg_color': '#0265CB', 'font_color': 'white',
+         'valign': 'vcenter', 'align': 'center'})
+    detail_fmt = workbook.add_format(
+        {"font_name": u"宋体", 'valign': 'vcenter', 'align': 'center', 'font_size': 11, 'text_wrap': True})
+    worksheet1 = writer.sheets[sheet_name]
+    for col_num, value in enumerate(df.columns.values):
+        worksheet1.write(0, col_num, value, col_fmt)
+    # # 设置列宽行宽
+    worksheet1.set_column('A:Z', 18, fmt)
+    # worksheet1.set_column('F:F', 40, fmt)
+    worksheet1.set_row(0, 30, fmt)
+    for i in range(1, len(excel_data) + 1):
+        worksheet1.set_row(i, 26, detail_fmt)
+
+    return True
 
 
 if __name__ == '__main__':

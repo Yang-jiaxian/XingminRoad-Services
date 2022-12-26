@@ -31,9 +31,9 @@ class LogServices():
         """
         mysql = OptionMysql()
         total_sql = """SELECT COUNT(log.`id`) AS `total` FROM `log` left join `operator` on `log`.operator_id=`operator`.id WHERE log.`is_delete`=0"""
-        data_sql = """SELECT log.`id`,operator.`name`,log.`detail`,log.`is_delete`,log.`created_at`,log.`updated_at` FROM `log` left join `operator` on `log`.operator_id=`operator`.id WHERE log.`is_delete`=0"""
+        data_sql = """SELECT log.`id`,operator.`name`,log.`detail`,log.`created_at`,log.`updated_at` FROM `log` left join `operator` on `log`.operator_id=`operator`.id WHERE log.`is_delete`=0"""
         params = []
-        if operator_name is None:
+        if operator_name is not None:
             total_sql += """ AND `operator`.name LIKE %s"""
             data_sql += """ AND `operator`.name LIKE %s"""
             params.append("%" + str(operator_name) + "%")
@@ -42,7 +42,7 @@ class LogServices():
             data_sql += """ AND `log`.created_at >%s AND `log`.created_at <%s"""
             params.extend([start_time, end_time])
         total_res = mysql.fetch_one(total_sql, params)
-
-        data_sql += f""" LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
+        if pageNo and pageSize:
+            data_sql += f""" LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
         data = mysql.fetch_data(data_sql, params)
         return total_res["total"], data
