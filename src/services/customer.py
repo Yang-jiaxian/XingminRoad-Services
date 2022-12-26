@@ -83,12 +83,12 @@ class CustomerServices(object):
             data_sql = """SELECT * FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
             params.append(str(datetime.datetime.today().date()))
         elif remind_type == RemindType.fund_expiry_customers:
-            total_sql = """SELECT count(customer.id) as total FROM `customer` RIGHT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
-            data_sql = """SELECT customer.* FROM `customer` RIGHT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
+            total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
+            data_sql = """SELECT customer.* FROM `customer` LEFT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
             params.append(str(datetime.datetime.today().date()))
         elif remind_type == RemindType.need_to_contact_customers:
-            total_sql = """SELECT count(customer.id) as total FROM `customer` RIGHT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s"""
-            data_sql = """SELECT customer.* FROM `customer` RIGHT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s"""
+            total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s"""
+            data_sql = """SELECT customer.* FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s"""
             params.append(str(datetime.datetime.today().date()))
         else:
             total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0"""
@@ -144,8 +144,10 @@ class CustomerServices(object):
             params.append("%" + margin_account + "%")
 
         mysql = OptionMysql()
+        total_sql += """ GROUP BY customer.id"""
         total_result = mysql.fetch_one(total_sql, params)
-        data_sql += f""" LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
+
+        data_sql += f""" GROUP BY customer.id LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
         data = mysql.fetch_data(data_sql, params)
         for result in data:
             result["permissions"] = json.loads(result["permissions"]) if result["permissions"] else {}

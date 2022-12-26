@@ -50,9 +50,7 @@ class ContactServices(object):
             kwargs["remind_date"] = get_before_workday(the_contact["next_contact_date"], kwargs["remind_duration"])
 
         mysql = OptionMysql()
-        affect_rows = mysql.update_dict("contact", where=f"`id`={contactId}", data=kwargs)
-        if affect_rows != 1:
-            raise InternalException(status.HTTP_622_MYSQL_ERROR, message="修改联系记录失败")
+        mysql.update_dict("contact", where=f"`id`={contactId}", data=kwargs)
 
     @staticmethod
     def fetch_one(contactId):
