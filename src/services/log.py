@@ -29,6 +29,7 @@ class LogServices():
         """获取日志记录
 
         """
+        total = 0
         mysql = OptionMysql()
         total_sql = """SELECT COUNT(log.`id`) AS `total` FROM `log` left join `operator` on `log`.operator_id=`operator`.id WHERE log.`is_delete`=0"""
         data_sql = """SELECT log.`id`,operator.`name`,log.`detail`,log.`created_at`,log.`updated_at` FROM `log` left join `operator` on `log`.operator_id=`operator`.id WHERE log.`is_delete`=0"""
@@ -42,7 +43,10 @@ class LogServices():
             data_sql += """ AND `log`.created_at >%s AND `log`.created_at <%s"""
             params.extend([start_time, end_time])
         total_res = mysql.fetch_one(total_sql, params)
+        if total_res:
+            total = total_res["total"]
+
         if pageNo and pageSize:
-            data_sql += f""" LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
+            data_sql += f""" ORDER BY id DESC LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
         data = mysql.fetch_data(data_sql, params)
-        return total_res["total"], data
+        return total, data

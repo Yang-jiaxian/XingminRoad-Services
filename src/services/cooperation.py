@@ -56,13 +56,16 @@ class CooperationServices(object):
         """获取多条合作券商数据
 
         """
+        total = 0
         mysql = OptionMysql()
         sql_statement = """SELECT COUNT(`id`) AS count FROM `cooperative_brokerage` WHERE `customer_id`=%s"""
         params = [customerId]
         result = mysql.fetch_one(sql_statement, [customerId])
+        if result:
+            total = result["count"]
 
         sql_statement = """SELECT * FROM `cooperative_brokerage` WHERE `customer_id`=%s"""
         if pageNo and pageSize:
-            sql_statement += """ LIMIT {}, {}""".format((pageNo - 1) * pageSize, pageSize)
+            sql_statement += """ ORDER BY id DESC LIMIT {}, {}""".format((pageNo - 1) * pageSize, pageSize)
         results = mysql.fetch_data(sql_statement, params)
-        return result["count"], format_data(results)
+        return total, format_data(results)

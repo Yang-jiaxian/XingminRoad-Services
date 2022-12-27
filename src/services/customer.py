@@ -150,7 +150,7 @@ class CustomerServices(object):
         if total_result:
             total = total_result["total"]
 
-        data_sql += f""" GROUP BY customer.id LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
+        data_sql += f""" GROUP BY customer.id ORDER BY id DESC LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
         data = mysql.fetch_data(data_sql, params)
         for result in data:
             result["permissions"] = json.loads(result["permissions"]) if result["permissions"] else {}

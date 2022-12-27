@@ -67,6 +67,7 @@ class ContactServices(object):
         """获取联系记录
 
         """
+        total = 0
         mysql = OptionMysql()
         sql_statement = """SELECT COUNT(`id`) AS count FROM `contact` WHERE `is_delete`=0"""
         params = []
@@ -74,6 +75,8 @@ class ContactServices(object):
             sql_statement += """ AND `customer_id`=%s"""
             params.append(customerId)
         result = mysql.fetch_one(sql_statement, [customerId])
+        if result:
+            total = result["count"]
 
         sql_statement = """SELECT
                             `id`,
@@ -92,6 +95,6 @@ class ContactServices(object):
         if customerId is not None:
             sql_statement += """ AND `customer_id`=%s"""
         if pageNo and pageSize:
-            sql_statement += """ LIMIT {}, {}""".format((pageNo - 1) * pageSize, pageSize)
+            sql_statement += """ ORDER BY id DESC LIMIT {}, {}""".format((pageNo - 1) * pageSize, pageSize)
         results = mysql.fetch_data(sql_statement, params)
-        return result["count"], format_data(results)
+        return total, format_data(results)

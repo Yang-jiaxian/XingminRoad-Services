@@ -51,12 +51,15 @@ class OperatorServices(object):
         pageNo   : 页码
         pageSize : 页大小
         """
+        total = 0
         mysql = OptionMysql()
         sql_statement = """SELECT COUNT(`id`) AS count FROM `operator` WHERE `is_delete`=0"""
         result = mysql.fetch_one(sql_statement)
+        if result:
+            total = result["count"]
 
         sql_statement = """SELECT `id`,`name`,`phone` FROM `operator` WHERE `is_delete`=0"""
         if pageNo and pageSize:
-            sql_statement += """ LIMIT {}, {}""".format((pageNo - 1) * pageSize, pageSize)
+            sql_statement += """ ORDER BY id DESC LIMIT {}, {}""".format((pageNo - 1) * pageSize, pageSize)
         results = mysql.fetch_data(sql_statement)
-        return result["count"], results
+        return total, results
