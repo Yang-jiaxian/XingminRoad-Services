@@ -109,7 +109,7 @@ CREATE TABLE `fund`  (
   `id` int(0) NOT NULL AUTO_INCREMENT COMMENT '基金ID',
   `customer_id` int(0) NOT NULL COMMENT '客户ID',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT '购买产品',
-  `amount` int(0) NULL DEFAULT NULL COMMENT '购买金额',
+  `amount` float NULL DEFAULT NULL COMMENT '购买金额',
   `yield_rate` float NULL DEFAULT NULL COMMENT '收益率',
   `buy_date` date NULL DEFAULT NULL COMMENT '购买时间',
   `day_number` int(0) NULL DEFAULT NULL COMMENT '产品天数',
