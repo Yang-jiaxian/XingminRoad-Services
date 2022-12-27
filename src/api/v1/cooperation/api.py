@@ -63,7 +63,7 @@ async def update_cooperation_api(
 
     CooperationServices().update(cooperationId, **params.dict())
 
-    LogServices().create(operator_id, f"修改了ID为{cooperationId}的合作券商", params.dict())
+    LogServices().create(operator_id, f"修改了ID为{cooperationId}的合作券商，客户ID为{params.customer_id}的联系记录", params.dict())
     return output_json(data={"cooperation_id": cooperationId}, message="")
 
 

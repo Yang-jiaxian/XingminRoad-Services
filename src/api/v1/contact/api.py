@@ -68,7 +68,7 @@ async def update_contact_api(
 
     ContactServices().update(contactId, **params.dict())
 
-    LogServices().create(operator_id, f"修改了ID为{contactId}的联系记录", params.dict())
+    LogServices().create(operator_id, f"修改了ID为{contactId}的联系记录，客户ID为{params.customer_id}的联系记录", params.dict())
     return output_json(data={"contact_id": contactId}, message="")
 
 

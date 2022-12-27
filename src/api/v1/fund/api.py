@@ -57,7 +57,7 @@ async def update_fund_api(
 
     FundServices().update(fundId, **params.dict())
 
-    LogServices().create(operator_id, f"修改了ID为{fundId}的客户基金数据", params.dict())
+    LogServices().create(operator_id, f"修改了ID为{fundId}的客户基金数据，客户ID为{params.customer_id}的联系记录", params.dict())
     return output_json(data={"fund_id": fundId}, message="")
 
 
