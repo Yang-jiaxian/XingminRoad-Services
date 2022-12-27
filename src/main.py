@@ -22,6 +22,7 @@ from src.schemas import VersionResp, StatusCodeResp, HeartData
 from src.services.operator import OperatorServices
 from src.utils import delete_dir
 from src.const import operator_list
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 with open(settings.README_MD_PATH, encoding='utf8') as f:
     description = f.read()
@@ -51,6 +52,11 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="static")
+
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request, exc):
+    return templates.TemplateResponse("404.html", {"request": request})
 
 
 # 重设swagger地址设为docs
