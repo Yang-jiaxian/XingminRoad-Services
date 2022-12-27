@@ -77,9 +77,10 @@ class OptionMysql(object):
             else:
                 cursor.execute(sql)
             result = cursor.fetchone()
-            for key, value in result.items():
-                if isinstance(value, datetime) or isinstance(value, date):
-                    result[key] = str(value)
+            if result:
+                for key, value in result.items():
+                    if isinstance(value, datetime) or isinstance(value, date):
+                        result[key] = str(value)
         except Exception as e:
             print("===========" * 5 + "\n" + sql + "\n" + "===========" * 5)
             if params:
@@ -98,10 +99,11 @@ class OptionMysql(object):
             else:
                 cursor.execute(sql)
             result = cursor.fetchall()
-            for item in result:
-                for key, value in item.items():
-                    if isinstance(value, datetime) or isinstance(value, date):
-                        item[key] = str(value)
+            if result:
+                for item in result:
+                    for key, value in item.items():
+                        if isinstance(value, datetime) or isinstance(value, date):
+                            item[key] = str(value)
         except Exception as e:
             print("===========" * 5 + "\n" + sql + "\n" + "===========" * 5)
             if params:

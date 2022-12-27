@@ -77,6 +77,7 @@ class CustomerServices(object):
     @staticmethod
     def fetch_data(remind_type, customer_id, capital_account, customer_type, name, contact_person, phone,
                    developer, assignmenter, is_internet_channel, follower, margin_account, gender, pageNo, pageSize):
+        total = 0
         params = []
         if remind_type == RemindType.interest_rate_expiry_customers:
             total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
@@ -146,6 +147,8 @@ class CustomerServices(object):
         mysql = OptionMysql()
         total_sql += """ GROUP BY customer.id"""
         total_result = mysql.fetch_one(total_sql, params)
+        if total_result:
+            total = total_result["total"]
 
         data_sql += f""" GROUP BY customer.id LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
         data = mysql.fetch_data(data_sql, params)
@@ -163,7 +166,7 @@ class CustomerServices(object):
                 result["contact_status"] = "从未联系"
             else:
                 result["contact_status"] = "第" + to_chinese4(result["contact_status"]) + "次"
-        return total_result["total"], data
+        return total, data
 
     @staticmethod
     def update_contact_status(customerId):
