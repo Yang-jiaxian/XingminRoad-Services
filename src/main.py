@@ -56,7 +56,7 @@ templates = Jinja2Templates(directory="static")
 
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request, exc):
-    return templates.TemplateResponse("404.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 # 重设swagger地址设为docs
