@@ -9,4 +9,4 @@ import uvicorn
 if __name__ == '__main__':
     # 生成日志文件夹
 
-    uvicorn.run(app='src.main:app', host='localhost', port=8000, workers=1)
+    uvicorn.run(app='src.main:app', host='0.0.0.0', port=8000, workers=1)

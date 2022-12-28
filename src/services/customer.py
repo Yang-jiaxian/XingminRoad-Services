@@ -51,7 +51,6 @@ class CustomerServices(object):
         mysql = OptionMysql()
         affect_rows = mysql.update_dict("customer", where=f"`id`={customerId}", data=kwargs)
 
-
     @staticmethod
     def fetch_one(customerId):
         """获取一条数据
@@ -88,9 +87,9 @@ class CustomerServices(object):
             data_sql = """SELECT customer.* FROM `customer` LEFT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
             params.append(str(datetime.datetime.today().date()))
         elif remind_type == RemindType.need_to_contact_customers:
-            total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s"""
-            data_sql = """SELECT customer.* FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s"""
-            params.append(str(datetime.datetime.today().date()))
+            total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s AND contact.next_contact_date > %s"""
+            data_sql = """SELECT customer.* FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s AND contact.next_contact_date > %s"""
+            params.extend([str(datetime.datetime.today().date()), str(datetime.datetime.today().date())])
         else:
             total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0"""
             data_sql = """SELECT * FROM `customer` WHERE `is_delete`=0"""
@@ -218,11 +217,11 @@ class CustomerServices(object):
                             FROM
                                 `customer` 
                             WHERE
-                                id IN ( SELECT `customer_id` FROM `contact` WHERE `remind_date` <% s AND `is_delete` = 0 GROUP BY `customer_id` ) 
+                                id IN ( SELECT `customer_id` FROM `contact` WHERE `remind_date` <% s AND `next_contact_date`>%s AND `is_delete` = 0 GROUP BY `customer_id` ) 
                                 AND `is_delete` = 0 
                             GROUP BY
                                 `customer_type`"""
-        need_to_contact_remind_result = mysql.fetch_data(sql_statement, [date])
+        need_to_contact_remind_result = mysql.fetch_data(sql_statement, [date, date])
         need_to_contact_remind_result_tmp = {item["customer_type"]: item["total"] for item in
                                              need_to_contact_remind_result}
 
