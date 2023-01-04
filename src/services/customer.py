@@ -6,7 +6,7 @@
 import json
 import datetime
 
-from src.const import INTEREST_RATE_EXPIRY_REMIND_DURATION, CustomerType, RemindType
+from src.const import INTEREST_RATE_EXPIRY_REMIND_DURATION, CustomerType, RemindType, Permissions
 from src.utils import to_chinese4, get_before_workday
 from src.common.OptionMysql import OptionMysql
 from src.error import InternalException, status
@@ -74,22 +74,34 @@ class CustomerServices(object):
         return result
 
     @staticmethod
-    def fetch_data(remind_type, customer_id, capital_account, customer_type, name, contact_person, phone,
-                   developer, assignmenter, is_internet_channel, follower, margin_account, gender, pageNo, pageSize):
+    def fetch_data(remind_type, customer_id, capital_account, customer_type, name, contact_person, phone, developer,
+                   assignmenter, is_internet_channel, follower, margin_account, gender, permissions, pageNo, pageSize):
+        """
+
+        """
+
         total = 0
         params = []
+        fund_summary_tmp = {}
+        all_fund_summary = 0
+        mysql = OptionMysql()
+
+        # 融资融券到期
         if remind_type == RemindType.interest_rate_expiry_customers:
             total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
             data_sql = """SELECT * FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
             params.append(str(datetime.datetime.today().date()))
+        # 基金到期
         elif remind_type == RemindType.fund_expiry_customers:
             total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
             data_sql = """SELECT customer.* FROM `customer` LEFT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
             params.append(str(datetime.datetime.today().date()))
+        # 需要联系
         elif remind_type == RemindType.need_to_contact_customers:
             total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s AND contact.next_contact_date > %s"""
             data_sql = """SELECT customer.* FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s AND contact.next_contact_date > %s"""
             params.extend([str(datetime.datetime.today().date()), str(datetime.datetime.today().date())])
+        # 没有条件
         else:
             total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0"""
             data_sql = """SELECT * FROM `customer` WHERE `is_delete`=0"""
@@ -110,6 +122,10 @@ class CustomerServices(object):
             total_sql += """ AND customer.gender=%s"""
             data_sql += """ AND customer.gender=%s"""
             params.append(gender)
+        if permissions is not None:
+            permissions = permissions.name
+            total_sql += f" AND customer.{permissions}=1"
+            data_sql += f" AND customer.{permissions}=1"
         if capital_account is not None:
             total_sql += " AND customer.capital_account LIKE %s"
             data_sql += " AND customer.capital_account LIKE %s"
@@ -143,17 +159,33 @@ class CustomerServices(object):
             data_sql += " AND customer.margin_account LIKE %s"
             params.append("%" + margin_account + "%")
 
-        mysql = OptionMysql()
-        total_sql += """ GROUP BY customer.id"""
         total_result = mysql.fetch_one(total_sql, params)
         if total_result:
             total = total_result["total"]
 
+        pre_query_res = mysql.fetch_data(data_sql, params)
+        id_list = [item["id"] for item in pre_query_res]
+        if id_list:
+            fund_summary_sql = """SELECT fund.customer_id,sum(fund.amount) as fund_amount_summary FROM `customer` RIGHT JOIN fund ON customer.id = fund.customer_id WHERE fund.is_delete=0 AND customer.is_delete=0 AND fund.customer_id IN %s GROUP BY fund.customer_id;"""
+            fund_summary_res = mysql.fetch_data(fund_summary_sql, [tuple(id_list)])
+            fund_summary_tmp = {item["customer_id"]: round(item["fund_amount_summary"], 2) for item in fund_summary_res}
+            all_fund_summary = sum([item["fund_amount_summary"] for item in fund_summary_res])
+
         data_sql += f""" GROUP BY customer.id ORDER BY id DESC LIMIT {(pageNo - 1) * pageSize},{pageSize}"""
         data = mysql.fetch_data(data_sql, params)
         for result in data:
-            result["permissions"] = json.loads(result["permissions"]) if result["permissions"] else {}
+            result["cash_treasure"] = result["cash_treasure"] == 1
+            result["automatic_investment_plan"] = result["automatic_investment_plan"] == 1
+            result["double_innovation_board"] = result["double_innovation_board"] == 1
+            result["share_option"] = result["share_option"] == 1
+            result["shenzhen_hong_kong_stock_connect"] = result["shenzhen_hong_kong_stock_connect"] == 1
+            result["shanghai_hong_kong_stock_connect"] = result["shanghai_hong_kong_stock_connect"] == 1
+            result["double_margin_account"] = result["double_margin_account"] == 1
+            result["beijing_stock_exchange"] = result["beijing_stock_exchange"] == 1
+            result["pension_account"] = result["pension_account"] == 1
+
             result["fund_demand"] = json.loads(result["fund_demand"]) if result["fund_demand"] else {}
+            result["fund_amount_summary"] = fund_summary_tmp.get(result["id"], 0)
             result["technical_demand"] = json.loads(result["technical_demand"]) if result["technical_demand"] else {}
             result["bond_source_demand"] = json.loads(result["bond_source_demand"]) if result[
                 "bond_source_demand"] else {}
@@ -161,11 +193,10 @@ class CustomerServices(object):
                 "investment_research_demand"] else {}
             result["private_placement_strategy"] = json.loads(result["private_placement_strategy"]) if result[
                 "private_placement_strategy"] else {}
-            if result["contact_status"] == 0:
-                result["contact_status"] = "从未联系"
-            else:
-                result["contact_status"] = "第" + to_chinese4(result["contact_status"]) + "次"
-        return total, data
+            result["contact_status"] = "从未联系" if result["contact_status"] == 0 else "第" + to_chinese4(
+                result["contact_status"]) + "次"
+
+        return total, data, all_fund_summary
 
     @staticmethod
     def update_contact_status(customerId):

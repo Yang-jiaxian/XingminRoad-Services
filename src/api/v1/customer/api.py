@@ -11,7 +11,7 @@ from fastapi import APIRouter, Path, Query, Depends
 from src.api.v1.customer.schemas import CreateCustomerParams, GetRemindCustomersCountResp, \
     CreateCustomerResp, FetchCustomersResp
 from typing import Optional
-from src.const import CustomerType, RemindType, Gender
+from src.const import CustomerType, RemindType, Gender, Permissions
 from src.error import InternalException, status
 from src.services.customer import CustomerServices
 from src.services.log import LogServices
@@ -25,8 +25,6 @@ async def create_customers_api(
         params: CreateCustomerParams,
         operator_id: int = Depends(check_operator)
 ):
-    if params.permissions:
-        params.permissions = json.dumps(params.permissions.dict())
     if params.private_placement_strategy:
         params.private_placement_strategy = json.dumps(params.private_placement_strategy.dict())
     if params.fund_demand:
@@ -74,8 +72,6 @@ async def update_customer_api(
         operator_id: int = Depends(check_operator)
 
 ):
-    if params.permissions:
-        params.permissions = json.dumps(params.permissions.dict())
     if params.private_placement_strategy:
         params.private_placement_strategy = json.dumps(params.private_placement_strategy.dict())
     if params.fund_demand:
@@ -154,6 +150,7 @@ async def fetch_customers_api(
         assignmenter: str = Query(None, title="服务包分配", description="服务包分配"),
         follower: str = Query(None, title="跟进情况", description="跟进情况"),
         is_internet_channel: bool = Query(None, title="是否是互联网渠道", description="是否是互联网渠道"),
+        permissions: Optional[Permissions] = Query(None, title="权限管理"),
         margin_account: str = Query(None, title="融资融券账号", description="融资融券账号"),
         remind_type: Optional[RemindType] = Query(None, title="提醒的类型", description="提醒的类型, 不填就不过滤"),
         pageNo: int = Query(1, ge=0, title="页码", description="页码"),
@@ -168,9 +165,60 @@ async def fetch_customers_api(
         customer_type = customer_type.value
     if gender is not None:
         gender = gender.value
-    total, data = CustomerServices().fetch_data(remind_type, customer_id, capital_account, customer_type, name,
-                                                contact_person,
-                                                phone, developer, assignmenter, is_internet_channel, follower,
-                                                margin_account, gender,
-                                                pageNo, pageSize)
-    return output_json(data=data, message='', total=total)
+    total, data, all_fund_summary = CustomerServices().fetch_data(
+        remind_type, customer_id, capital_account, customer_type, name, contact_person, phone, developer, assignmenter,
+        is_internet_channel, follower, margin_account, gender, permissions, pageNo, pageSize)
+
+    summary = {
+        # "id": 0,
+        # "capital_account": "2314241234142",
+        # "customer_type": 0,
+        # "name": "asdfaa",
+        # "gender": 0,
+        # "contact_person": null,
+        # "phone": "12412341234",
+        # "occupation": "速度飞洒",
+        # "birthday": null,
+        # "certificate_type": null,
+        # "certificate_number": null,
+        # "existing_assets": 1231223,
+        # "historical_peak": null,
+        # "customer_source": null,
+        # "specific_channel": null,
+        # "commission_rate": "gggz",
+        # "risk_appetite": "激进型",
+        # "contact_status": "从未联系",
+        # "developer": null,
+        # "is_internet_channel": null,
+        # "assignmenter": null,
+        # "follower": null,
+        # "cash_treasure": false,
+        # "automatic_investment_plan": false,
+        # "double_innovation_board": false,
+        # "share_option": false,
+        # "shenzhen_hong_kong_stock_connect": false,
+        # "shanghai_hong_kong_stock_connect": false,
+        # "double_margin_account": false,
+        # "beijing_stock_exchange": false,
+        # "pension_account": false,
+        # "margin_account": null,
+        # "account_opening_date": null,
+        # "preferential_interest_rate": null,
+        # "interest_rate_effective_date": "2022-12-27",
+        # "interest_rate_expiry_date": "2022-12-27",
+        # "interest_rate_expiry_remind_date": "2022-11-29",
+        # "remark": null,
+        # "operator_id": null,
+        # "scale_of_management": null,
+        # "private_placement_strategy": {},
+        # "fund_demand": {},
+        # "technical_demand": {},
+        # "bond_source_demand": {},
+        # "investment_research_demand": {},
+        # "is_delete": 0,
+        # "created_at": "2022-12-27 18:10:45",
+        # "updated_at": "2022-12-28 12:02:22",
+        # "fund_amount_summary": 0
+        "all_fund_summary": round(all_fund_summary, 2)
+    }
+    return output_json(data=data, message='', total=total, summary=summary)

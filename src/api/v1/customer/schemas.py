@@ -9,17 +9,6 @@ from src.schemas import StatusCodeResp
 from src.const import CustomerType, DATE_REGEX, Gender, ScaleOfManagement
 
 
-class Permissions(BaseModel):
-    cash_treasure: bool = Field(False, title="现金宝")
-    automatic_investment_plan: bool = Field(False, title="基金定投", description="AIP")
-    double_innovation_board: bool = Field(False, title="双创板")
-    share_option: bool = Field(False, title="期权")
-    shenzhen_hong_kong_stock_connect: bool = Field(False, title="深港通")
-    shanghai_hong_kong_stock_connect: bool = Field(False, title="沪港通")
-    double_margin_account: bool = Field(False, title="两融账户")
-    beijing_stock_exchange: bool = Field(False, title="北交所")
-
-
 class PrivatePlacementStrategy(BaseModel):
     """私募的策略类型
 
@@ -95,7 +84,17 @@ class CreateCustomerParams(BaseModel):
     is_internet_channel: bool = Field(None, title="是否是互联网渠道")
     assignmenter: str = Field(None, title="服务包分配", description="应该是一个人名")
     follower: str = Field(None, title="跟进情况", description="应该是一个人名")
-    permissions: Permissions = Field(None, title="开发关系")
+
+    cash_treasure: bool = Field(False, title="现金宝")
+    automatic_investment_plan: bool = Field(False, title="基金定投", description="AIP")
+    double_innovation_board: bool = Field(False, title="双创板")
+    share_option: bool = Field(False, title="期权")
+    shenzhen_hong_kong_stock_connect: bool = Field(False, title="深港通")
+    shanghai_hong_kong_stock_connect: bool = Field(False, title="沪港通")
+    double_margin_account: bool = Field(False, title="两融账户")
+    beijing_stock_exchange: bool = Field(False, title="北交所")
+    pension_account: bool = Field(False, title="养老金账户")
+
     margin_account: str = Field(None, title="融资融券账号")
     account_opening_date: str = Field(None, regex=DATE_REGEX, title="融资融券开户日期")
     preferential_interest_rate: float = Field(None, title="融资融券优惠利率")
@@ -113,41 +112,6 @@ class CreateCustomerParams(BaseModel):
 
 class CreateCustomerResp(StatusCodeResp):
     customer_id: int = Field(..., title="客户id", description="数据库中的id")
-
-
-# class UpdateCustomerParams(BaseModel):
-#     name: str = Field(..., title="名字", description="个人客户时是姓名，机构客户时是机构名")
-#     gender: Gender = Field(None, title="性别", description="0是男性，1是女性")
-#     contact_person: str = Field(None, title="联系人")
-#     phone: str = Field(None, title="联系方式")
-#     occupation: str = Field(None, title="职业")
-#     birthday: str = Field(None, regex=DATE_REGEX, title="出生年月日")
-#     certificate_type: str = Field(None, title="证件类型")
-#     certificate_number: str = Field(None, title="证件号码")
-#     existing_assets: int = Field(None, title="资产-现有资产")
-#     historical_peak: int = Field(None, title="资产-历史峰值")
-#     customer_source: str = Field(None, title="客户情况-客户来源")
-#     specific_channel: str = Field(None, title="客户情况-具体渠道")
-#     commission_rate: str = Field(None, title="佣金费率")
-#     risk_appetite: str = Field(None, title="风险偏好")
-#     developer: str = Field(None, title="开发关系", description="应该是一个人名")
-#     is_internet_channel: bool = Field(None, title="是否是互联网渠道")
-#     assignmenter: str = Field(None, title="服务包分配", description="应该是一个人名")
-#     follower: str = Field(None, title="跟进情况", description="应该是一个人名")
-#     permissions: Permissions = Field(None, title="开发关系")
-#     margin_account: str = Field(None, title="融资融券账号")
-#     account_opening_date: str = Field(None, regex=DATE_REGEX, title="融资融券开户日期")
-#     preferential_interest_rate: float = Field(None, title="融资融券优惠利率")
-#     interest_rate_effective_date: str = Field(None, regex=DATE_REGEX, title="融资融券优惠利率生效日期")
-#     interest_rate_expiry_date: str = Field(None, regex=DATE_REGEX, title="融资融券优惠利率失效日期")
-#     remark: str = Field(None, title="备注")
-#
-#     scale_of_management: ScaleOfManagement = Field(ScaleOfManagement.zero_to_five.value, title="管理规模")
-#     private_placement_strategy: PrivatePlacementStrategy = Field(None, title="私募的策略类型")
-#     fund_demand: FundDemand = Field(None, title="资金需求")
-#     technical_demand: TechnicalDemand = Field(None, title="技术需求")
-#     bond_source_demand: BondSourceDemand = Field(None, title="券源需求")
-#     investment_research_demand: InvestmentResearchDemand = Field(None, title="投研需求")
 
 
 class GetRemindCustomersCountResp_IndividualCustomer(BaseModel):
@@ -183,7 +147,19 @@ class FetchCustomersResp_Customer(BaseModel):
     is_internet_channel: bool = Field(None, title="是否是互联网渠道")
     assignmenter: str = Field(None, title="服务包分配", description="应该是一个人名")
     follower: str = Field(None, title="跟进情况", description="应该是一个人名")
-    permissions: Permissions = Field(None, title="开发关系")
+
+    fund_amount_summary: float = Field(None, title="购买基金总额")
+
+    cash_treasure: bool = Field(False, title="现金宝")
+    automatic_investment_plan: bool = Field(False, title="基金定投", description="AIP")
+    double_innovation_board: bool = Field(False, title="双创板")
+    share_option: bool = Field(False, title="期权")
+    shenzhen_hong_kong_stock_connect: bool = Field(False, title="深港通")
+    shanghai_hong_kong_stock_connect: bool = Field(False, title="沪港通")
+    double_margin_account: bool = Field(False, title="两融账户")
+    beijing_stock_exchange: bool = Field(False, title="北交所")
+    pension_account: bool = Field(False, title="养老金账户")
+
     margin_account: str = Field(None, title="融资融券账号")
     account_opening_date: str = Field(None, regex=DATE_REGEX, title="融资融券开户日期")
     preferential_interest_rate: float = Field(None, title="融资融券优惠利率")
@@ -196,7 +172,6 @@ class FetchCustomersResp_Customer(BaseModel):
     technical_demand: TechnicalDemand = Field({}, title="技术需求")
     bond_source_demand: BondSourceDemand = Field({}, title="券源需求")
     investment_research_demand: InvestmentResearchDemand = Field({}, title="投研需求")
-
     operator_id: int = Field(..., title="创建此客户的操作人ID")
     is_delete: int = Field(..., title="是否删除")
     created_at: str = Field(..., title="创建时间")
@@ -206,3 +181,4 @@ class FetchCustomersResp_Customer(BaseModel):
 class FetchCustomersResp(StatusCodeResp):
     total: int = Field(..., title="命中条数", description="符合条件的记录数")
     data: List[FetchCustomersResp_Customer] = Field(..., title="数据")
+    summary: dict = Field(..., title="汇总数据")

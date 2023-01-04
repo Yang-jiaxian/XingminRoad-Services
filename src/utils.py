@@ -63,13 +63,17 @@ def format_data(data: list):
     return data
 
 
-def output_json(data, message, code: int = 0, total=None):
+def output_json(data, message, code: int = 0, total=None, **kwargs):
     """格式化输出
 
     """
     if total is not None:
-        return JSONResponse(content={"code": code, 'message': message, 'data': data, 'total': total})
-    return JSONResponse(content={"code": code, 'message': message, 'data': data})
+        content = {"code": code, 'message': message, 'data': data, 'total': total}
+    else:
+
+        content = {"code": code, 'message': message, 'data': data}
+    content.update(**kwargs)
+    return JSONResponse(content=content)
 
 
 def delete_dir(dir_path, keep_day):
@@ -103,7 +107,6 @@ def check_operator(operator_id: int = Header(...), requests: Request = None):
 
 
 def export_data_to_excel(save_file, columns, excel_data):
-
     data_df = pd.DataFrame(data=excel_data, columns=columns)
     with pd.ExcelWriter(path=save_file, engine="xlsxwriter", options={'strings_to_urls': False}) as writer:
         data_df.to_excel(excel_writer=writer, sheet_name="Sheet1", encoding='utf8', header=False, index=False,

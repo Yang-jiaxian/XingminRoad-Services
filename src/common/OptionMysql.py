@@ -5,7 +5,7 @@
 # Created Time: 2021/12/17
 import json
 from typing import List
-from datetime import datetime,date
+from datetime import datetime, date
 
 import pymysql
 from dbutils.pooled_db import PooledDB

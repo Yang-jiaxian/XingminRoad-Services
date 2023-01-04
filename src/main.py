@@ -100,6 +100,7 @@ async def remove_file():
 
     """
     logger.info('删除过期日志文件')
+    logger.info("DOCS_URL : http://localhost:8000/docs")
     event_loop = asyncio.get_event_loop()
     event_loop.run_in_executor(None, delete_dir, settings.LOGS_DIR, settings.LOGS_KEEP_DAYS)
 

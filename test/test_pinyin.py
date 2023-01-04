@@ -10,4 +10,3 @@ for i in pypinyin.pinyin("word", style=pypinyin.NORMAL):
     s += ''.join(i)
 
 print(s)
-
