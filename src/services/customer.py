@@ -6,7 +6,7 @@
 import json
 import datetime
 
-from src.const import INTEREST_RATE_EXPIRY_REMIND_DURATION, CustomerType, RemindType, Permissions
+from src.const import INTEREST_RATE_EXPIRY_REMIND_DURATION, CustomerType, RemindType
 from src.utils import to_chinese4, get_before_workday
 from src.common.OptionMysql import OptionMysql
 from src.error import InternalException, status
@@ -59,7 +59,15 @@ class CustomerServices(object):
         mysql = OptionMysql()
         sql_statement = """SELECT * FROM `customer` WHERE `is_delete`=0 AND `id`=%s"""
         result = mysql.fetch_one(sql_statement, [customerId])
-        result["permissions"] = json.loads(result["permissions"]) if result["permissions"] else {}
+        result["cash_treasure"] = result["cash_treasure"] == 1
+        result["automatic_investment_plan"] = result["automatic_investment_plan"] == 1
+        result["double_innovation_board"] = result["double_innovation_board"] == 1
+        result["share_option"] = result["share_option"] == 1
+        result["shenzhen_hong_kong_stock_connect"] = result["shenzhen_hong_kong_stock_connect"] == 1
+        result["shanghai_hong_kong_stock_connect"] = result["shanghai_hong_kong_stock_connect"] == 1
+        result["double_margin_account"] = result["double_margin_account"] == 1
+        result["beijing_stock_exchange"] = result["beijing_stock_exchange"] == 1
+        result["pension_account"] = result["pension_account"] == 1
         result["fund_demand"] = json.loads(result["fund_demand"]) if result["fund_demand"] else {}
         result["technical_demand"] = json.loads(result["technical_demand"]) if result["technical_demand"] else {}
         result["bond_source_demand"] = json.loads(result["bond_source_demand"]) if result["bond_source_demand"] else {}
