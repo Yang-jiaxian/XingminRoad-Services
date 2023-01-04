@@ -8,10 +8,10 @@ import json
 aa = "Sector basket stocks"
 print(aa.lower().replace(" ", "_").replace("-", "_"))
 
-
-        #
+#
 
 import json
+
 
 class JsonCustomEncoder(json.JSONEncoder):
     def default(self, field):
@@ -21,4 +21,4 @@ class JsonCustomEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, field)
 
 
-json.dumps(ret,cls=JsonCustomEncoder)
+json.dumps(ret, cls=JsonCustomEncoder)

@@ -40,7 +40,6 @@ class CooperationServices(object):
         mysql = OptionMysql()
         mysql.update_dict("cooperative_brokerage", where=f"`id`={cooperationId}", data=kwargs)
 
-
     @staticmethod
     def fetch_one(cooperationId: int):
         """获取一条合作券商数据

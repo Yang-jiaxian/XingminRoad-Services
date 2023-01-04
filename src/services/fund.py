@@ -45,7 +45,6 @@ class FundServices(object):
         mysql = OptionMysql()
         affect_rows = mysql.update_dict("fund", where=f"`id`={fundId}", data=kwargs)
 
-
     @staticmethod
     def fetch_one(fundId):
         """获取客户基金数据

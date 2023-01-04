@@ -37,6 +37,19 @@ class RemindType(str, Enum):
     need_to_contact_customers = "需要联系客户"
 
 
+class Permissions(str, Enum):
+    """权限管理枚举"""
+    cash_treasure = "现金宝"
+    automatic_investment_plan = "基金定投"
+    double_innovation_board = "双创板"
+    share_option = "期权"
+    shenzhen_hong_kong_stock_connect = "深港通"
+    shanghai_hong_kong_stock_connect = "沪港通"
+    double_margin_account = "两融账户"
+    beijing_stock_exchange = "北交所"
+    pension_account = "养老金账户"
+
+
 # 日期正则
 DATE_REGEX = "^([1-2][0-9][0-9][0-9]-[0-1]{0,1}[0-9]-[0-3]{0,1}[0-9])$"
 
