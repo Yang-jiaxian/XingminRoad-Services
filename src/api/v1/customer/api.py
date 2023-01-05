@@ -5,12 +5,12 @@
 # @Time    : 2022/11/14
 import datetime
 import json
+from typing import Optional
 
 from fastapi import APIRouter, Path, Query, Depends
 
 from src.api.v1.customer.schemas import CreateCustomerParams, GetRemindCustomersCountResp, \
     CreateCustomerResp, FetchCustomersResp
-from typing import Optional
 from src.const import CustomerType, RemindType, Gender, Permissions
 from src.error import InternalException, status
 from src.services.customer import CustomerServices
@@ -70,8 +70,11 @@ async def update_customer_api(
         params: CreateCustomerParams,
         customerId: int = Path(..., title="客户ID", description="客户ID"),
         operator_id: int = Depends(check_operator)
-
 ):
+    # 检查客户ID是否存在
+    if not CustomerServices().fetch_one(customerId):
+        raise InternalException(status.HTTP_601_ID_NOT_EXIST, message="客户ID不存在")
+
     if params.private_placement_strategy:
         params.private_placement_strategy = json.dumps(params.private_placement_strategy.dict())
     if params.fund_demand:
@@ -222,3 +225,16 @@ async def fetch_customers_api(
         "all_fund_summary": round(all_fund_summary, 2)
     }
     return output_json(data=data, message='', total=total, summary=summary)
+
+
+@customer_app.get(path="/customers/{customerId}", summary="获取单个客户信息")
+async def fetch_customer_api(
+        customerId: int = Path(..., title="客户ID", description="客户ID"),
+        operator_id: int = Depends(check_operator)
+):
+    """
+    """
+    data = CustomerServices().fetch_one(customerId)
+    if not data:
+        raise InternalException(status.HTTP_601_ID_NOT_EXIST, message="客户不存在")
+    return output_json(data=data, message='')

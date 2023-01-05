@@ -62,8 +62,7 @@ async def update_contact_api(
         operator_id: int = Depends(check_operator)
 
 ):
-    result = ContactServices().fetch_one(contactId)
-    if not result:
+    if not ContactServices().fetch_one(contactId):
         raise InternalException(status.HTTP_601_ID_NOT_EXIST, message="联系记录ID已删除或不存在")
 
     ContactServices().update(contactId, **params.dict())
@@ -74,7 +73,7 @@ async def update_contact_api(
 
 @contact_app.get("/contacts", summary="获取联系记录", response_model=FetchContactsResp)
 async def fetch_contacts_api(
-        customerId: int = Query(None, title="客户ID", description="客户ID"),
+        customerId: int = Query(..., title="客户ID", description="客户ID"),
         pageNo: int = Query(1, ge=0, title="页码", description="页码"),
         pageSize: int = Query(20, ge=0, title="页大小", description="页大小"),
         operator_id: int = Depends(check_operator)

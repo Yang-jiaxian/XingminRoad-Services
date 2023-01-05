@@ -69,7 +69,7 @@ async def update_cooperation_api(
 
 @cooperation_app.get("/cooperations", summary="获取合作券商", response_model=FetchCooperationsResp)
 async def fetch_cooperation_api(
-        customerId: int = Query(None, title="客户ID", description="客户ID"),
+        customerId: int = Query(..., title="客户ID", description="客户ID"),
         pageNo: int = Query(1, ge=0, title="页码", description="页码"),
         pageSize: int = Query(20, ge=0, title="页大小", description="页大小"),
         operator_id: int = Depends(check_operator)

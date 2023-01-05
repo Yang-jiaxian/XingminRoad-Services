@@ -63,7 +63,7 @@ async def update_fund_api(
 
 @fund_app.get("/funds", summary="获取客户基金数据", response_model=FetchFundsResp)
 async def fetch_fund_api(
-        customerId: int = Query(None, title="客户ID", description="客户ID"),
+        customerId: int = Query(..., title="客户ID", description="客户ID"),
         pageNo: int = Query(1, ge=0, title="页码", description="页码"),
         pageSize: int = Query(20, ge=0, title="页大小", description="页大小"),
         operator_id: int = Depends(check_operator)
