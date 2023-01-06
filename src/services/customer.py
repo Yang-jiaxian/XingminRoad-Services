@@ -96,9 +96,9 @@ class CustomerServices(object):
 
         # 融资融券到期
         if remind_type == RemindType.interest_rate_expiry_customers:
-            total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
-            data_sql = """SELECT * FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s"""
-            params.append(str(datetime.datetime.today().date()))
+            total_sql = """SELECT count(*) as total FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s AND `interest_rate_expiry_date`>=%s"""
+            data_sql = """SELECT * FROM `customer` WHERE `is_delete`=0 AND `interest_rate_expiry_remind_date` < %s AND `interest_rate_expiry_date`>=%s"""
+            params.extend([str(datetime.datetime.today().date()), str(datetime.datetime.today().date())])
         # 基金到期
         elif remind_type == RemindType.fund_expiry_customers:
             total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN fund ON fund.customer_id=customer.id WHERE customer.is_delete=0 AND fund.is_delete=0 AND fund.remind_date=%s"""
@@ -106,8 +106,8 @@ class CustomerServices(object):
             params.append(str(datetime.datetime.today().date()))
         # 需要联系
         elif remind_type == RemindType.need_to_contact_customers:
-            total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s AND contact.next_contact_date > %s"""
-            data_sql = """SELECT customer.* FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s AND contact.next_contact_date > %s"""
+            total_sql = """SELECT count(DISTINCT customer.id) as total FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s AND contact.next_contact_date >= %s"""
+            data_sql = """SELECT customer.* FROM `customer` LEFT JOIN contact ON contact.customer_id=customer.id WHERE customer.is_delete=0 AND contact.is_delete=0 AND contact.remind_date < %s AND contact.next_contact_date >= %s"""
             params.extend([str(datetime.datetime.today().date()), str(datetime.datetime.today().date())])
         # 没有条件
         else:
@@ -229,11 +229,12 @@ class CustomerServices(object):
                             FROM
                                 `customer` 
                             WHERE
-                                `interest_rate_expiry_remind_date` <% s 
+                                `interest_rate_expiry_remind_date` <% s
+                                AND `interest_rate_expiry_date` >= %s 
                                 AND `is_delete` = 0 
                             GROUP BY
                                 `customer_type`"""
-        interest_rate_expiry_remind_result = mysql.fetch_data(sql_statement, [date])
+        interest_rate_expiry_remind_result = mysql.fetch_data(sql_statement, [date, date])
         interest_rate_expiry_remind_result_tmp = {item["customer_type"]: item["total"] for item in
                                                   interest_rate_expiry_remind_result}
 
@@ -256,7 +257,7 @@ class CustomerServices(object):
                             FROM
                                 `customer` 
                             WHERE
-                                id IN ( SELECT `customer_id` FROM `contact` WHERE `remind_date` <% s AND `next_contact_date`>%s AND `is_delete` = 0 GROUP BY `customer_id` ) 
+                                id IN ( SELECT `customer_id` FROM `contact` WHERE `remind_date` <% s AND `next_contact_date`>=%s AND `is_delete` = 0 GROUP BY `customer_id` ) 
                                 AND `is_delete` = 0 
                             GROUP BY
                                 `customer_type`"""
