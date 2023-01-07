@@ -28,6 +28,8 @@ def get_before_workday(date: str, n: int):
     mysql = OptionMysql()
     sql = """SELECT `date` FROM `workday` WHERE date < %s ORDER BY `date` DESC LIMIT %s"""
     data = mysql.fetch_data(sql, [date, n])
+    if not data:
+        raise InternalException(status.HTTP_422_UNPROCESSABLE_ENTITY, "无法追溯到这么早的工作日，请联系管理员")
     return str(data[n - 1]["date"])
 
 
