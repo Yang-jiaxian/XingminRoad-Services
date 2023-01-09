@@ -1,0 +1,1 @@
+import{d as m}from"./pinia-9fcab373.js";import{l as e}from"./@vue-e16f66a9.js";const c=m("setup",()=>{const r=e({});function s(o){r.value=o}const t=e({});return{grkhForm:r,setGrkhForm:s,jgkhForm:t,setJgkhForm:o=>{t.value=o}}});export{c as u};
